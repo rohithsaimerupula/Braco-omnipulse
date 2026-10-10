@@ -37,7 +37,7 @@ export default function SignInPage({ searchParams }: { searchParams: { error?: s
               </div>
             )}
 
-            <form className="space-y-4" action={login}>
+            <form className="space-y-4" action={login as any}>
               <div>
                 <label htmlFor="signin-email" className="block text-xs font-medium text-graphite mb-1.5">
                   Email

@@ -31,7 +31,7 @@ export default function RegionalCreativeStudioPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="primary" size="sm" onClick={handleGenerate} disabled={isGenerating || hasGenerated} iconLeft={isGenerating ? undefined : <Wand2 size={14}/>}>
+          <Button variant="primary" size="sm" onClick={handleGenerate} disabled={isGenerating || hasGenerated} icon={isGenerating ? undefined : <Wand2 size={14}/>}>
             {isGenerating ? "Generating Variants..." : hasGenerated ? "Regenerate All" : "Generate Variants"}
           </Button>
         </div>

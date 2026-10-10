@@ -19,7 +19,7 @@ export default function DecisionPassportPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm" iconLeft={<Share2 size={14}/>}>Share Link</Button>
+          <Button variant="outline" size="sm" icon={<Share2 size={14}/>}>Share Link</Button>
           <Button variant="primary" size="sm" onClick={() => window.print()} iconRight={<Printer size={14}/>}>
             Print / Save PDF
           </Button>

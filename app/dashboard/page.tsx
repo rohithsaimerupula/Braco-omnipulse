@@ -24,7 +24,7 @@ export default function DashboardOverviewPage() {
         </div>
         <div className="flex gap-3">
           <Link href="/campaigns/new">
-            <Button variant="primary" size="sm" iconLeft={<Plus size={16}/>}>New Campaign</Button>
+            <Button variant="primary" size="sm" icon={<Plus size={16}/>}>New Campaign</Button>
           </Link>
         </div>
       </div>

@@ -47,7 +47,7 @@ export default function SignUpPage({ searchParams }: { searchParams: { error?: s
               </div>
             )}
 
-            <form className="space-y-4" action={signup}>
+            <form className="space-y-4" action={signup as any}>
               <div>
                 <label htmlFor="signup-name" className="block text-xs font-medium text-graphite mb-1.5">Full name</label>
                 <input

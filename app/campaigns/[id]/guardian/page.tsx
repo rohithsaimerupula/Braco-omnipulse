@@ -139,7 +139,7 @@ export default function BrandGuardianPage() {
                   <div className="bg-white rounded-lg border border-forest/10 p-4">
                     <span className="block text-xs font-medium text-graphite mb-3">Resolution Actions</span>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => markResolved('f-1', 'deleted')} iconLeft={<XCircle size={14}/>}>
+                      <Button variant="outline" size="sm" onClick={() => markResolved('f-1', 'deleted')} icon={<XCircle size={14}/>}>
                         Delete claim from asset
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => markResolved('f-1', 'dismissed')} className="text-neutral-500">

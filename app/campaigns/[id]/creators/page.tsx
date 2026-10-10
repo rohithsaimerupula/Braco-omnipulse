@@ -19,7 +19,7 @@ export default function CreatorMatchPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm" iconLeft={<Download size={14}/>}>Download Creator Brief</Button>
+          <Button variant="outline" size="sm" icon={<Download size={14}/>}>Download Creator Brief</Button>
           <Link href="/campaigns/123/experiment">
             <Button variant="primary" size="sm" iconRight={<ChevronRight size={14}/>}>Plan Experiment</Button>
           </Link>
