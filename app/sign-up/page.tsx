@@ -39,7 +39,6 @@ export default function SignUpPage({ searchParams }: { searchParams: { error?: s
                 <h1 className="font-serif text-2xl font-semibold text-forest">Create account</h1>
                 <p className="text-sm text-neutral-400 mt-0.5">Stage 2 implements full auth</p>
               </div>
-              <Badge variant="demo">Demo mode</Badge>
             </div>
 
             {searchParams?.error && (

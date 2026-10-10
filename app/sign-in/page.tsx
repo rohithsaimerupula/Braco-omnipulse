@@ -29,10 +29,7 @@ export default function SignInPage({ searchParams }: { searchParams: { error?: s
             <h1 className="font-serif text-2xl font-semibold text-forest mb-1 text-center">Welcome back</h1>
             <p className="text-sm text-neutral-500 text-center mb-7">Sign in to your workspace</p>
 
-            {/* Demo notice */}
-            <div className="bg-brass/8 border border-brass/20 rounded-lg p-3 mb-6 text-xs text-brass-600">
-              <strong>Demo mode:</strong> Use <code className="bg-brass/10 px-1 rounded">demo@bracoomnipulse.com</code> / <code className="bg-brass/10 px-1 rounded">demo1234</code>
-            </div>
+
 
             {searchParams?.error && (
               <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-lg">

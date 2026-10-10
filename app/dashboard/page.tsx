@@ -23,7 +23,6 @@ export default function DashboardOverviewPage() {
           <p className="text-sm text-neutral-500">Welcome to your Braco OmniPulse workspace.</p>
         </div>
         <div className="flex gap-3">
-          <Badge variant="demo" className="py-1.5 px-3 hidden sm:inline-flex">Demo Mode Active</Badge>
           <Link href="/campaigns/new">
             <Button variant="primary" size="sm" iconLeft={<Plus size={16}/>}>New Campaign</Button>
           </Link>

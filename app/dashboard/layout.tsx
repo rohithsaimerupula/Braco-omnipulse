@@ -47,7 +47,6 @@ export default async function DashboardLayout({
         <div className="mt-auto px-2 py-3 rounded-lg bg-ivory/5 border border-ivory/10">
           <p className="text-2xs text-ivory/40 uppercase tracking-widest mb-1">Signed in as</p>
           <p className="text-xs text-ivory/70 font-medium truncate">{email}</p>
-          <Badge variant="demo" className="mt-2">Demo Workspace</Badge>
         </div>
       </aside>
 

@@ -31,7 +31,6 @@ export default function RegionalCreativeStudioPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="demo" className="hidden sm:inline-flex">Demo fixture fallback active</Badge>
           <Button variant="primary" size="sm" onClick={handleGenerate} disabled={isGenerating || hasGenerated} iconLeft={isGenerating ? undefined : <Wand2 size={14}/>}>
             {isGenerating ? "Generating Variants..." : hasGenerated ? "Regenerate All" : "Generate Variants"}
           </Button>
