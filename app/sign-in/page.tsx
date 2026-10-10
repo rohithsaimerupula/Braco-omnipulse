@@ -128,6 +128,12 @@ export default function SignInPage({ searchParams }: { searchParams?: { error?: 
                 </div>
               </form>
             )}
+            <p className="text-center text-xs text-neutral-400 mt-6 pt-6 border-t border-forest/10">
+              Don&apos;t have an account?{" "}
+              <Link href="/sign-up" className="text-brass hover:text-brass-500 font-medium">
+                Sign up
+              </Link>
+            </p>
           </div>
         </div>
       </main>

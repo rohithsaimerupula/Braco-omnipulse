@@ -53,6 +53,29 @@ export async function sendOtp(email: string) {
   }
 }
 
+export async function registerUserAndSendOtp(formData: FormData) {
+  const email = formData.get('email') as string;
+  const name = formData.get('name') as string;
+  const company = formData.get('company') as string;
+
+  if (!email || !name) return { error: "Email and Name are required" };
+
+  try {
+    // Save to users table
+    await turso.execute({
+      sql: `INSERT INTO users (email, name, company) VALUES (?, ?, ?) 
+            ON CONFLICT(email) DO UPDATE SET name = excluded.name, company = excluded.company`,
+      args: [email, name, company]
+    });
+
+    // Send OTP
+    return await sendOtp(email);
+  } catch (err: any) {
+    console.error(err);
+    return { error: "Failed to register user." };
+  }
+}
+
 export async function verifyOtpAndLogin(email: string, code: string) {
   try {
     const result = await turso.execute({
