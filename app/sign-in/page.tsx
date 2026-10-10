@@ -2,13 +2,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Navbar } from "@/components/layout/Navbar";
 import { ArrowRight, Globe2 } from "lucide-react";
+import { login } from "@/app/auth/actions";
 
 export const metadata = {
   title: "Sign in — Braco OmniPulse",
   description: "Sign in to your Braco OmniPulse workspace.",
 };
 
-export default function SignInPage() {
+export default function SignInPage({ searchParams }: { searchParams: { error?: string } }) {
   return (
     <>
       <Navbar />
@@ -33,13 +34,20 @@ export default function SignInPage() {
               <strong>Demo mode:</strong> Use <code className="bg-brass/10 px-1 rounded">demo@bracoomnipulse.com</code> / <code className="bg-brass/10 px-1 rounded">demo1234</code>
             </div>
 
-            <form className="space-y-4" action="/dashboard">
+            {searchParams?.error && (
+              <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-lg">
+                {searchParams.error}
+              </div>
+            )}
+
+            <form className="space-y-4" action={login}>
               <div>
                 <label htmlFor="signin-email" className="block text-xs font-medium text-graphite mb-1.5">
                   Email
                 </label>
                 <input
                   id="signin-email"
+                  name="email"
                   type="email"
                   placeholder="you@example.com"
                   defaultValue="demo@bracoomnipulse.com"
@@ -54,6 +62,7 @@ export default function SignInPage() {
                 </label>
                 <input
                   id="signin-password"
+                  name="password"
                   type="password"
                   placeholder="••••••••"
                   defaultValue="demo1234"

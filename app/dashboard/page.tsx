@@ -1,100 +1,131 @@
-import Link from "next/link";
-import { Globe2, LayoutDashboard, BarChart3, Users, ShieldCheck, Settings, ArrowRight } from "lucide-react";
+"use client";
+
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Clock, ShieldCheck, Zap, Activity, ChevronRight, FileText, Plus } from "lucide-react";
+import Link from "next/link";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from "recharts";
 
-export const metadata = {
-  title: "Dashboard — Braco OmniPulse",
-  description: "Braco OmniPulse campaign dashboard overview.",
-};
+const workflowMetrics = [
+  { label: "Avg. time to approved draft", value: "4.2 hrs", delta: "-65%", detail: "vs manual baseline", positive: true },
+  { label: "Claims with verified evidence", value: "98.5%", delta: "+12%", detail: "last 30 days", positive: true },
+  { label: "Data quality issues caught", value: "14", delta: "+3", detail: "in import gate", positive: false },
+];
 
-export default function DashboardPage() {
+export default function DashboardOverviewPage() {
   return (
-    <div className="min-h-screen bg-ivory flex">
-      {/* Sidebar */}
-      <aside className="w-60 shrink-0 bg-forest text-ivory flex flex-col py-6 px-4 gap-1">
-        <Link href="/" className="flex items-center gap-2 mb-8 px-2">
-          <span className="w-7 h-7 rounded-md bg-ivory/10 flex items-center justify-center">
-            <Globe2 size={14} className="text-brass" />
-          </span>
-          <span className="font-serif font-semibold text-ivory text-base">
-            Braco <span className="text-brass">OmniPulse</span>
-          </span>
-        </Link>
-        {[
-          { icon: <LayoutDashboard size={15} />, label: "Overview", href: "/dashboard", active: true },
-          { icon: <BarChart3 size={15} />, label: "Campaigns", href: "/dashboard" },
-          { icon: <Users size={15} />, label: "Creators", href: "/dashboard" },
-          { icon: <ShieldCheck size={15} />, label: "Approvals", href: "/dashboard" },
-          { icon: <BarChart3 size={15} />, label: "Analytics", href: "/dashboard" },
-          { icon: <Settings size={15} />, label: "Settings", href: "/dashboard" },
-        ].map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-              item.active
-                ? "bg-ivory/10 text-ivory font-medium"
-                : "text-ivory/50 hover:text-ivory hover:bg-ivory/5"
-            }`}
-          >
-            {item.icon}
-            {item.label}
-          </Link>
-        ))}
-        <div className="mt-auto px-2 py-3 rounded-lg bg-ivory/5 border border-ivory/10">
-          <p className="text-2xs text-ivory/40 uppercase tracking-widest mb-1">Signed in as</p>
-          <p className="text-xs text-ivory/70 font-medium">Demo Workspace</p>
-          <Badge variant="demo" className="mt-2">Sample data</Badge>
+    <div className="p-8 max-w-6xl mx-auto space-y-8 animate-fade-in">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl font-semibold text-forest mb-1">Overview</h1>
+          <p className="text-sm text-neutral-500">Welcome to your Braco OmniPulse workspace.</p>
         </div>
-      </aside>
+        <div className="flex gap-3">
+          <Badge variant="demo" className="py-1.5 px-3 hidden sm:inline-flex">Demo Mode Active</Badge>
+          <Link href="/campaigns/new">
+            <Button variant="primary" size="sm" iconLeft={<Plus size={16}/>}>New Campaign</Button>
+          </Link>
+        </div>
+      </div>
 
-      {/* Main */}
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-5xl">
-          <div className="flex items-start justify-between mb-8">
-            <div>
-              <h1 className="font-serif text-2xl font-semibold text-forest mb-1">Good morning, Demo</h1>
-              <p className="text-sm text-neutral-400">Rasa Foods — South India Campaign Workspace</p>
+      {/* Workflow Metrics (M8) */}
+      <section>
+        <h2 className="text-sm font-semibold text-graphite mb-4 uppercase tracking-widest flex items-center gap-2">
+          <Activity size={16} className="text-forest" /> Workflow Metrics
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {workflowMetrics.map((metric, i) => (
+            <div key={i} className="bg-white rounded-xl border border-forest/10 p-5 shadow-sm">
+              <p className="text-xs font-medium text-neutral-500 mb-2">{metric.label}</p>
+              <div className="flex items-end gap-3">
+                <span className="text-2xl font-serif text-forest">{metric.value}</span>
+                <span className={`text-xs font-medium mb-1 ${metric.positive ? 'text-green-600' : 'text-neutral-500'}`}>
+                  {metric.delta}
+                </span>
+              </div>
+              <p className="text-2xs text-neutral-400 mt-1">{metric.detail}</p>
             </div>
-            <Link href="/dashboard">
-              <Button variant="primary" size="sm" iconRight={<ArrowRight size={14} />}>
-                Create campaign
+          ))}
+        </div>
+      </section>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Active Campaigns */}
+        <section className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-graphite uppercase tracking-widest flex items-center gap-2">
+              <Zap size={16} className="text-forest" /> Active Campaigns
+            </h2>
+            <Link href="/campaigns" className="text-xs font-medium text-forest hover:underline">View all</Link>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Seeded Demo Campaign */}
+            <Link href="/campaigns/123/passport" className="block bg-white rounded-xl border border-forest/10 p-5 shadow-sm hover:border-forest/30 transition-colors group">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-forest text-base group-hover:text-forest-600 transition-colors">South India Diwali Push</h3>
+                  <p className="text-xs text-neutral-500 mt-0.5">Telugu & Marathi • Short Video</p>
+                </div>
+                <Badge variant="success">Approved</Badge>
+              </div>
+              
+              <div className="flex items-center gap-4 mt-5 pt-4 border-t border-forest/5 text-xs text-neutral-600">
+                <div className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-green-600"/> 0 Open Findings</div>
+                <div className="flex items-center gap-1.5"><Clock size={14} className="text-brass"/> Experiment Running</div>
+              </div>
+            </Link>
+
+            {/* Empty State / Draft */}
+            <div className="block bg-white rounded-xl border border-forest/10 p-5 shadow-sm opacity-60">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-graphite text-base">Q1 Brand Refresh</h3>
+                  <p className="text-xs text-neutral-500 mt-0.5">Tamil • Social Feed</p>
+                </div>
+                <Badge variant="demo">Draft v1</Badge>
+              </div>
+              <div className="flex items-center gap-4 mt-5 pt-4 border-t border-forest/5 text-xs text-neutral-600">
+                <div className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-neutral-400"/> Not checked</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Activity Trace Preview */}
+        <section className="space-y-4">
+          <h2 className="text-sm font-semibold text-graphite uppercase tracking-widest flex items-center gap-2">
+            <FileText size={16} className="text-forest" /> Recent Decision Trace
+          </h2>
+          
+          <div className="bg-sage/10 rounded-xl border border-sage-300/30 p-5 shadow-sm">
+            <div className="relative border-l border-forest/20 ml-2 pl-5 space-y-5">
+              {[
+                { event: "Experiment Locked", time: "10 mins ago", role: "Admin" },
+                { event: "Asset v2 Approved", time: "12 mins ago", role: "Admin" },
+                { event: "Guardian Checked", time: "26 mins ago", role: "System" },
+                { event: "Variants Generated", time: "28 mins ago", role: "AI Demo" }
+              ].map((step, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -left-[25px] top-1.5 w-2 h-2 bg-forest rounded-full"></div>
+                  <p className="text-sm font-medium text-graphite leading-tight">{step.event}</p>
+                  <p className="text-xs text-neutral-500 mt-0.5">{step.role} • {step.time}</p>
+                </div>
+              ))}
+            </div>
+            <Link href="/campaigns/123/passport">
+              <Button variant="outline" size="sm" fullWidth className="mt-6" iconRight={<ChevronRight size={14}/>}>
+                View Full Passport
               </Button>
             </Link>
           </div>
+        </section>
 
-          {/* Coming soon notice */}
-          <div className="bg-brass/8 border border-brass/20 rounded-xl p-6 mb-8">
-            <p className="font-semibold text-brass mb-1">Stage 1 complete — Landing page &amp; design system</p>
-            <p className="text-sm text-graphite/60">
-              The full dashboard, campaigns, analytics and creator features will be implemented in Stages 2–6.
-              Sign in was accepted — you&apos;re now in the demo workspace.
-            </p>
-          </div>
-
-          {/* Stat tiles */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[
-              { label: "Active campaigns", value: "2", badge: "Sample data" },
-              { label: "Pending approvals", value: "1", badge: "Sample data" },
-              { label: "Drafts", value: "3", badge: "Sample data" },
-              { label: "Creators assigned", value: "4", badge: "Sample data" },
-            ].map((s) => (
-              <div key={s.label} className="bg-white rounded-xl border border-forest/8 shadow-editorial p-5">
-                <div className="font-serif text-3xl font-semibold text-forest mb-1">{s.value}</div>
-                <div className="text-xs text-neutral-500 mb-2">{s.label}</div>
-                <Badge variant="demo" className="text-2xs">{s.badge}</Badge>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-sm text-neutral-400 italic">
-            Full dashboard UI coming in Stage 2. Navigate back to the{" "}
-            <Link href="/" className="text-brass hover:underline">landing page</Link>.
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

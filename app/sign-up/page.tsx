@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Navbar } from "@/components/layout/Navbar";
 import { ArrowRight, Globe2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { signup } from "@/app/auth/actions";
 
 export const metadata = {
   title: "Sign up — Braco OmniPulse",
@@ -16,7 +17,7 @@ const accountTypes = [
   { id: "creator", label: "Creator or influencer", desc: "Accept briefs and manage collaborations" },
 ];
 
-export default function SignUpPage() {
+export default function SignUpPage({ searchParams }: { searchParams: { error?: string } }) {
   return (
     <>
       <Navbar />
@@ -41,25 +42,33 @@ export default function SignUpPage() {
               <Badge variant="demo">Demo mode</Badge>
             </div>
 
-            <form className="space-y-4" action="/dashboard">
+            {searchParams?.error && (
+              <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-lg">
+                {searchParams.error}
+              </div>
+            )}
+
+            <form className="space-y-4" action={signup}>
               <div>
                 <label htmlFor="signup-name" className="block text-xs font-medium text-graphite mb-1.5">Full name</label>
                 <input
                   id="signup-name"
+                  name="name"
                   type="text"
                   placeholder="Your name"
                   className="w-full h-10 px-3.5 rounded-md border border-forest/15 bg-ivory text-sm text-graphite
-                             placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brass/40 focus:border-brass/40 transition-all"
+                             placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-forest/40 focus:border-forest/40 transition-all"
                 />
               </div>
               <div>
                 <label htmlFor="signup-email" className="block text-xs font-medium text-graphite mb-1.5">Email</label>
                 <input
                   id="signup-email"
+                  name="email"
                   type="email"
                   placeholder="you@example.com"
                   className="w-full h-10 px-3.5 rounded-md border border-forest/15 bg-ivory text-sm text-graphite
-                             placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brass/40 focus:border-brass/40 transition-all"
+                             placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-forest/40 focus:border-forest/40 transition-all"
                 />
               </div>
               <div>
@@ -88,10 +97,11 @@ export default function SignUpPage() {
                 <label htmlFor="signup-password" className="block text-xs font-medium text-graphite mb-1.5">Password</label>
                 <input
                   id="signup-password"
+                  name="password"
                   type="password"
                   placeholder="••••••••"
                   className="w-full h-10 px-3.5 rounded-md border border-forest/15 bg-ivory text-sm text-graphite
-                             placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brass/40 focus:border-brass/40 transition-all"
+                             placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-forest/40 focus:border-forest/40 transition-all"
                 />
               </div>
               <Button type="submit" variant="primary" size="md" fullWidth iconRight={<ArrowRight size={15} />}>
