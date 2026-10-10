@@ -8,8 +8,8 @@ export async function login(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  // Graceful handling for demo mode
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || email === 'admin@bracoomnipulse.com') {
+  // Graceful handling for demo mode if no database is connected at all
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     redirect('/dashboard')
   }
 
@@ -33,7 +33,7 @@ export async function signup(formData: FormData) {
   const name = formData.get('name') as string
   const accountType = formData.get('account-type') as string
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || email === 'admin@bracoomnipulse.com') {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     redirect('/dashboard')
   }
 
