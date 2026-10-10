@@ -452,7 +452,7 @@ export default function LandingPage() {
                 Automated brand-safety checks are not legal certification. All assets require
                 authorised human review before publication.
               </p>
-              <Link href="/sign-in">
+              <Link href="/sign-up">
                 <Button variant="brass" size="lg" iconRight={<ArrowRight size={16} />}>
                   Start reviewing
                 </Button>
@@ -804,12 +804,12 @@ export default function LandingPage() {
             regional adaptation, brand-safety review and human approval.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/sign-in">
+            <Link href="/sign-up">
               <Button variant="brass" size="xl" iconRight={<ArrowRight size={18} />}>
                 Get started free
               </Button>
             </Link>
-            <Link href="/sign-in">
+            <Link href="/sign-up">
               <Button
                 variant="ghost"
                 size="xl"
