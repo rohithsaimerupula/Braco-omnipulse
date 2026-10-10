@@ -59,7 +59,7 @@ export default function DashboardOverviewPage() {
             <h2 className="text-sm font-semibold text-graphite uppercase tracking-widest flex items-center gap-2">
               <Zap size={16} className="text-forest" /> Active Campaigns
             </h2>
-            <Link href="/campaigns" className="text-xs font-medium text-forest hover:underline">View all</Link>
+            <Link href="/campaigns/new" className="text-xs font-medium text-forest hover:underline">View all</Link>
           </div>
           
           <div className="space-y-4">
