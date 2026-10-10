@@ -791,7 +791,7 @@ export default function LandingPage() {
         <div className="relative max-w-3xl mx-auto px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-1.5 text-2xs font-medium uppercase tracking-widest text-brass/70 border border-brass/20 rounded-full px-3 py-1 mb-8">
             <Sparkles size={10} />
-            Hackathon demo mode
+            Enterprise Platform
           </div>
           <h2
             id="cta-headline"
@@ -800,7 +800,7 @@ export default function LandingPage() {
             Ready to see Braco OmniPulse in action?
           </h2>
           <p className="text-ivory/60 mb-10 max-w-lg mx-auto leading-relaxed">
-            Sign in with the demo workspace to explore the full campaign workflow—from brief to
+            Sign in with the workspace to explore the full campaign workflow—from brief to
             regional adaptation, brand-safety review and human approval.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -815,7 +815,7 @@ export default function LandingPage() {
                 size="xl"
                 className="text-ivory/80 hover:text-ivory hover:bg-ivory/10 border border-ivory/15 hover:border-ivory/25"
               >
-                Sign in to demo
+                Sign In
               </Button>
             </Link>
           </div>

@@ -13,7 +13,7 @@ export default async function DashboardLayout({
 
   // If no user and no Supabase URL, we're in Demo mode bypass.
   // We'll show a demo user info.
-  const email = user?.email || "demo@bracoomnipulse.com";
+  const email = user?.email || "admin@bracoomnipulse.com";
 
   return (
     <div className="min-h-screen bg-ivory flex">

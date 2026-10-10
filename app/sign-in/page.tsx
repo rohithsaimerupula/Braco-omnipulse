@@ -47,7 +47,7 @@ export default function SignInPage({ searchParams }: { searchParams: { error?: s
                   name="email"
                   type="email"
                   placeholder="you@example.com"
-                  defaultValue="demo@bracoomnipulse.com"
+                  defaultValue="admin@bracoomnipulse.com"
                   className="w-full h-10 px-3.5 rounded-md border border-forest/15 bg-ivory text-sm text-graphite
                              placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brass/40 focus:border-brass/40
                              transition-all duration-150"
