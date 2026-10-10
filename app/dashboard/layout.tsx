@@ -27,10 +27,10 @@ export default async function DashboardLayout({
         {[
           { icon: <LayoutDashboard size={15} />, label: "Overview", href: "/dashboard" },
           { icon: <Library size={15} />, label: "Brand Library", href: "/dashboard/library" },
-          { icon: <FileText size={15} />, label: "Campaigns", href: "/campaigns" },
-          { icon: <CheckSquare size={15} />, label: "Approvals", href: "/approvals" },
-          { icon: <BarChart3 size={15} />, label: "Analytics", href: "/dashboard/analytics" },
-          { icon: <Settings size={15} />, label: "Settings", href: "/dashboard/settings" },
+          { icon: <FileText size={15} />, label: "Campaigns", href: "/campaigns/new" },
+          { icon: <CheckSquare size={15} />, label: "Approvals", href: "/approvals/demo-123" },
+          { icon: <BarChart3 size={15} />, label: "Analytics", href: "/campaigns/demo-123/analytics" },
+          { icon: <Settings size={15} />, label: "Settings", href: "/dashboard" },
         ].map((item) => (
           <Link
             key={item.label}
