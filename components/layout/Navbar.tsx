@@ -71,7 +71,7 @@ export function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/sign-up">
+          <Link href="/sign-in">
             <Button variant="ghost" size="sm">Sign in</Button>
           </Link>
           <Link href="/sign-up">
@@ -104,7 +104,7 @@ export function Navbar() {
             </Link>
           ))}
           <div className="pt-3 flex flex-col gap-2.5">
-            <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
+            <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
               <Button variant="outline" size="md" fullWidth>Sign in</Button>
             </Link>
             <Link href="/sign-up" onClick={() => setMobileOpen(false)}>

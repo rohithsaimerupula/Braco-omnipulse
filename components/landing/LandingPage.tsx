@@ -809,7 +809,7 @@ export default function LandingPage() {
                 Get started free
               </Button>
             </Link>
-            <Link href="/sign-up">
+            <Link href="/sign-in">
               <Button
                 variant="ghost"
                 size="xl"
