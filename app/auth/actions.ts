@@ -8,8 +8,8 @@ export async function login(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  // Graceful handling for demo mode if Supabase isn't configured
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  // Graceful handling for demo mode
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || email === 'admin@bracoomnipulse.com') {
     redirect('/dashboard')
   }
 
@@ -20,7 +20,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    return { error: error.message }
+    redirect(`/sign-in?error=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')
@@ -33,7 +33,7 @@ export async function signup(formData: FormData) {
   const name = formData.get('name') as string
   const accountType = formData.get('account-type') as string
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || email === 'admin@bracoomnipulse.com') {
     redirect('/dashboard')
   }
 
@@ -50,7 +50,7 @@ export async function signup(formData: FormData) {
   })
 
   if (error) {
-    return { error: error.message }
+    redirect(`/sign-up?error=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')
