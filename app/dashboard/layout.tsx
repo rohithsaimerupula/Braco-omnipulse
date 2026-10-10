@@ -1,19 +1,16 @@
 import Link from "next/link";
 import { Globe2, LayoutDashboard, Library, FileText, CheckSquare, BarChart3, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
-import { createClient } from "@/lib/supabase/server";
+import { getSession } from "@/app/auth/actions";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const sessionEmail = await getSession();
 
-  // If no user and no Supabase URL, we're in Demo mode bypass.
-  // We'll show a demo user info.
-  const email = user?.email || "admin@bracoomnipulse.com";
+  const email = sessionEmail || "admin@bracoomnipulse.com";
 
   return (
     <div className="min-h-screen bg-ivory flex">
