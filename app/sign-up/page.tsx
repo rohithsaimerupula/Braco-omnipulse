@@ -78,8 +78,16 @@ export default function SignUpPage() {
             </p>
 
             {error && (
-              <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-lg text-center">
-                {error}
+              <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg text-center space-y-2">
+                <p className="font-medium">{error}</p>
+                {error.toLowerCase().includes("already registered") && (
+                  <Link
+                    href="/sign-in"
+                    className="inline-block font-semibold text-forest underline hover:text-brass"
+                  >
+                    Go to Sign In with this email →
+                  </Link>
+                )}
               </div>
             )}
 
