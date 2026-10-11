@@ -77,14 +77,17 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-2.5">
+        <div className="hidden md:flex items-center gap-2">
           <Link href="/dashboard">
-            <Button variant="primary" size="sm">
-              Open Sections 1–8 Command Center
+            <Button variant="outline" size="sm">
+              Command Center
             </Button>
           </Link>
           <Link href="/sign-in">
             <Button variant="ghost" size="sm">Sign in</Button>
+          </Link>
+          <Link href="/sign-up">
+            <Button variant="primary" size="sm">Sign up</Button>
           </Link>
         </div>
 
@@ -114,12 +117,15 @@ export function Navbar() {
           ))}
           <div className="pt-3 flex flex-col gap-2.5">
             <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-              <Button variant="primary" size="md" fullWidth>
+              <Button variant="outline" size="md" fullWidth>
                 Open Sections 1–8 Command Center
               </Button>
             </Link>
             <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" size="md" fullWidth>Sign in</Button>
+              <Button variant="ghost" size="md" fullWidth>Sign in</Button>
+            </Link>
+            <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
+              <Button variant="primary" size="md" fullWidth>Sign up</Button>
             </Link>
           </div>
         </div>
