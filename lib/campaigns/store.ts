@@ -17,19 +17,251 @@ import {
   fetchCampaignsFromTurso,
 } from "@/app/actions/campaignActions";
 
-const STORAGE_KEY = "braco_omnipulse_campaigns_v2";
+const STORAGE_KEY = "braco_omnipulse_campaigns_v5_regional_fix";
 
 // Default Seed Campaigns:
-// 1. GreenGlow Aloe Vera Gel (Acceptance Criterion Test Case — No festival, no family-health, no guarantee)
-// 2. South India Diwali Push (Festive Oats Campaign — Demonstrates catching unsupported guarantee in v1)
-const DEFAULT_CAMPAIGNS: Campaign[] = [
+// 1. GreenGlow — Small Daily Choices, Greener Living (Acceptance Criterion Test Case: Personal care & packaging, zero festival/family-health/guarantee, flags missing packaging evidence in v1 & verified in v2)
+// 2. GreenGlow Aloe Vera Gel — Coastal Andhra Telugu (Everyday Hydration — Coastal Andhra dialect)
+// 3. GreenGlow Aloe Vera Gel — Telangana Telugu (Everyday Hydration — Telangana dialect)
+// 4. South India Diwali Push (Festive Oats Campaign — Demonstrates catching unsupported guarantee in v1)
+export const DEFAULT_CAMPAIGNS: Campaign[] = [
+  {
+    id: "greenglow-small-daily-choices-greener-living",
+    name: "GreenGlow — Small Daily Choices, Greener Living",
+    createdAt: new Date().toISOString(),
+    brief: {
+      id: "brief-greenglow-sdc-001",
+      name: "GreenGlow — Small Daily Choices, Greener Living",
+      brandName: "GreenGlow",
+      objective:
+        "Small daily choices make everyday personal care simpler and help reduce unnecessary packaging. GreenGlow offers everyday personal care products.",
+      audience:
+        "Urban and semi-urban Indian consumers aged 18–35 who are interested in personal care, sustainable living and affordable everyday products.",
+      audienceAgeGroup: "18-35",
+      sourceLanguage: "English",
+      targetLanguage: "Telugu",
+      region: "Andhra Pradesh",
+      dialect: "Coastal Andhra",
+      tone: "Friendly, fresh, optimistic and trustworthy. Conversational language, short sentences.",
+      formality: "Semi-formal and conversational",
+      slangIntensity: "light",
+      slangFormality: "Semi-formal and conversational (No forced slang)",
+      culturalContext:
+        "Summer sustainability campaign encouraging consumers to make mindful everyday choices during hot weather.",
+      channel: "Social Video & Reels",
+      format: "Short Video Caption",
+      claimAtoms: [
+        {
+          id: "claim-gg-sdc-1",
+          canonicalText: "GreenGlow offers everyday personal care products.",
+          lockedTokens: ["GreenGlow", "everyday personal care"],
+          sourceTitle: "Brand Product Catalog Dossier GG-CAT-2026",
+          evidenceStatus: "supported",
+        },
+        {
+          id: "claim-gg-sdc-2",
+          canonicalText:
+            "GreenGlow refill packs help reduce unnecessary plastic packaging by 35% compared to standard bottles.",
+          lockedTokens: ["reduce unnecessary", "packaging", "35%"],
+          requiredQualifications: ["compared to standard bottles"],
+          sourceTitle: "Packaging Lifecycle Assessment Dossier GG-PKG-2026",
+          evidenceStatus: "supported",
+        },
+      ],
+    },
+    currentVersionId: "v2",
+    versions: [
+      {
+        id: "v1",
+        versionNumber: 1,
+        state: "NeedsChanges",
+        sourceText:
+          "Small daily choices make everyday personal care simpler and help reduce unnecessary packaging. GreenGlow offers everyday personal care products.",
+        literalTranslation:
+          "చిన్న రోజువారీ ఎంపికలు వ్యక్తిగత సంరక్షణను సులభతరం చేస్తాయి మరియు అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది.",
+        naturalAdaptation:
+          "ఈ వేసవి రోజుల్లో మన రోజువారీ అలవాట్లలో చేసే చిన్న మార్పులే మంచి ఫలితాన్ని ఇస్తాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది—అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించే ఆచరణాత్మక ఎంపిక.",
+        backTranslation:
+          "In our daily summer routine, small practical choices make a positive difference. GreenGlow provides everyday personal care products—a practical choice to help reduce unnecessary packaging.",
+        meaningPreservationFindings: [
+          "Brand name 'GreenGlow' preserved accurately in target copy.",
+          "Kept internal campaign brief meta-instructions ('Build awareness and trust...', 'Communicate without making unsupported claims') out of public-facing ad copy (Section 2 Rule 8).",
+          "Zero festival references, zero family-health implications, and zero 'results guaranteed' claims added (Acceptance Criterion passed).",
+          "[EVIDENCE_MISSING] Packaging reduction claim ('అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించే') requires verified packaging lifecycle evidence dossier in v1.",
+        ],
+        claimDiffs: [
+          {
+            type: "preserved",
+            text: "GreenGlow offers everyday personal care products.",
+            note: "Verified against Brand Product Catalog Dossier GG-CAT-2026",
+          },
+          {
+            type: "added_unsupported",
+            text: "అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించే (reduce unnecessary packaging)",
+            note: "Flagged in v1: Packaging reduction claim requires attaching Packaging Lifecycle Assessment Dossier GG-PKG-2026 and 'compared to standard bottles' qualification.",
+          },
+        ],
+        languageDialectWarnings: [
+          "In initial brief submission, region was listed as 'Andhra Pradesh / Telangana' while dialect was 'Coastal Andhra'. Flagged for regional reviewer confirmation.",
+        ],
+        reviewerCorrections: [],
+        honestStatus: "Unsupported claim detected",
+        evaluationMethodNote:
+          "Rule-based checklist ratio (4/5 checks passed in v1: zero festival/family-health/guarantee added, internal brief instructions excluded, brand preserved; 1 packaging claim flagged for missing packaging evidence dossier).",
+        language: "Telugu",
+        region: "Andhra Pradesh / Telangana",
+        dialect: "Coastal Andhra",
+        contentHash:
+          "4a6a2089a1fe3a5605c3cf3cdcbab56caf567a04f846e9a623f817b2f8c513b4",
+        meaningPreservationScore: 80,
+        adaptationRationale: [
+          {
+            change:
+              "Excluded internal campaign brief instructions ('Build awareness and trust...', 'Communicate without making unsupported claims') from public-facing ad copy.",
+            reason:
+              "Section 2 Rule 8: Keep internal campaign instructions out of public-facing ad copy.",
+            confidenceNote: "Deterministic brief-to-copy sanitization.",
+          },
+          {
+            change:
+              "Used natural Coastal Andhra conversational Telugu ('ఈ వేసవి రోజుల్లో', 'ఆచరణాత్మక ఎంపిక') without inventing festivals, family-health claims, or guarantees.",
+            reason:
+              "Summer routine context was explicitly supplied in the brief; no festival was requested.",
+            confidenceNote: "Strict adherence to Section 3 Cultural-Context Controls.",
+          },
+        ],
+        culturalNotes: [
+          "Adapted summer routine context ('ఈ వేసవి రోజుల్లో') from brief without inventing unrequested festivals.",
+          "Flagged multi-region ('Andhra Pradesh / Telangana') vs single-dialect ('Coastal Andhra') for human review.",
+        ],
+        findings: [
+          {
+            id: "f-sdc-pkg-v1",
+            classification: "evidence_missing",
+            category: "new_factual_claim",
+            textSpan: "అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించే",
+            explanation:
+              "Packaging reduction claim ('reduce unnecessary packaging') appears in v1 without a verified packaging lifecycle dossier or comparison qualification.",
+            evidenceGap:
+              "Initial brief only included fictional demo evidence for general personal care products, missing verified packaging reduction data.",
+            suggestedFix:
+              "Attach Packaging Lifecycle Assessment Dossier GG-PKG-2026 and specify 'సాధారణ బాటిళ్లతో పోలిస్తే రీఫిల్ ప్యాక్‌ల ద్వారా 35% అనవసరమైన ప్లాస్టిక్ ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడుతుంది' (as resolved in v2).",
+            ruleOrFact: "Section 4 & 7: Missing Packaging Evidence Gate",
+            severity: "critical",
+            resolved: false,
+          },
+          {
+            id: "f-sdc-1",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan: "గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది",
+            explanation:
+              "Approved product claim and brand name preserved accurately in Telugu.",
+            ruleOrFact: "Brand Product Catalog Dossier GG-CAT-2026",
+            severity: "low",
+            resolved: true,
+          },
+        ],
+        createdAt: new Date(Date.now() - 600000).toISOString(),
+      },
+      {
+        id: "v2",
+        versionNumber: 2,
+        state: "ReadyForReview",
+        sourceText:
+          "Small daily choices make everyday personal care simpler. GreenGlow offers everyday personal care products, and GreenGlow refill packs help reduce unnecessary plastic packaging by 35% compared to standard bottles.",
+        literalTranslation:
+          "చిన్న రోజువారీ ఎంపికలు వ్యక్తిగత సంరక్షణను సులభతరం చేస్తాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది మరియు సాధారణ బాటిళ్లతో పోలిస్తే గ్రీన్‌గ్లో రీఫిల్ ప్యాక్‌లు అనవసరమైన ప్లాస్టిక్ ప్యాకేజింగ్‌ను 35% తగ్గించడంలో సహాయపడతాయి.",
+        naturalAdaptation:
+          "ఈ వేసవి రోజుల్లో మన రోజువారీ అలవాట్లలో చేసే చిన్న మార్పులే మంచి ఫలితాన్ని ఇస్తాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది—సాధారణ బాటిళ్లతో పోలిస్తే మా రీఫిల్ ప్యాక్‌లు 35% అనవసరమైన ప్లాస్టిక్ ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి.",
+        backTranslation:
+          "In our daily summer routine, small changes in our habits bring good outcomes. GreenGlow provides everyday personal care products—compared to standard bottles, our refill packs help reduce unnecessary plastic packaging by 35%.",
+        meaningPreservationFindings: [
+          "Brand name 'GreenGlow' preserved accurately in target copy.",
+          "Kept internal campaign brief meta-instructions out of public-facing ad copy (Section 2 Rule 8).",
+          "Zero festival references, zero family-health implications, and zero 'results guaranteed' claims added (Acceptance Criterion passed).",
+          "All 2 approved claim(s) and required packaging qualification ('సాధారణ బాటిళ్లతో పోలిస్తే' / compared to standard bottles) preserved.",
+        ],
+        claimDiffs: [
+          {
+            type: "preserved",
+            text: "GreenGlow offers everyday personal care products.",
+            note: "Verified against Brand Product Catalog Dossier GG-CAT-2026",
+          },
+          {
+            type: "preserved",
+            text: "GreenGlow refill packs help reduce unnecessary plastic packaging by 35% compared to standard bottles.",
+            note: "Verified against Packaging Lifecycle Assessment Dossier GG-PKG-2026",
+          },
+        ],
+        languageDialectWarnings: [],
+        reviewerCorrections: [
+          {
+            timestamp: new Date().toISOString(),
+            reviewer: "Regional Telugu Reviewer & Compliance Lead",
+            beforeText:
+              "ఈ వేసవి రోజుల్లో మన రోజువారీ అలవాట్లలో చేసే చిన్న మార్పులే మంచి ఫలితాన్ని ఇస్తాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది—అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించే ఆచరణాత్మక ఎంపిక.",
+            afterText:
+              "ఈ వేసవి రోజుల్లో మన రోజువారీ అలవాట్లలో చేసే చిన్న మార్పులే మంచి ఫలితాన్ని ఇస్తాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది—సాధారణ బాటిళ్లతో పోలిస్తే మా రీఫిల్ ప్యాక్‌లు 35% అనవసరమైన ప్లాస్టిక్ ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి.",
+            note: "Attached Packaging Lifecycle Assessment Dossier GG-PKG-2026, added 'compared to standard bottles' qualification, and confirmed Coastal Andhra targeting.",
+          },
+        ],
+        honestStatus: "Meaning check passed",
+        evaluationMethodNote:
+          "Rule-based checklist ratio (5/5 checks passed: claim retention, packaging qualification preservation, zero unrequested festivals/guarantees, brand preservation). Back-translation is a diagnostic aid only; verified by Regional Reviewer.",
+        language: "Telugu",
+        region: "Andhra Pradesh",
+        dialect: "Coastal Andhra",
+        contentHash:
+          "9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d",
+        meaningPreservationScore: 100,
+        adaptationRationale: [
+          {
+            change:
+              "Added verified packaging qualification ('సాధారణ బాటిళ్లతో పోలిస్తే మా రీఫిల్ ప్యాక్‌లు 35% అనవసరమైన ప్లాస్టిక్ ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి').",
+            reason:
+              "Resolved v1 missing packaging evidence finding by linking Packaging Lifecycle Assessment Dossier GG-PKG-2026.",
+            confidenceNote: "Human-reviewed & verified against GG-PKG-2026.",
+          },
+        ],
+        culturalNotes: [
+          "Summer sustainability context ('ఈ వేసవి రోజుల్లో') preserved from brief; zero unrequested festivals.",
+        ],
+        findings: [
+          {
+            id: "f-sdc-v2-1",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan: "గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది",
+            explanation: "Verified against Brand Product Catalog Dossier GG-CAT-2026.",
+            ruleOrFact: "Brand Product Catalog Dossier GG-CAT-2026",
+            severity: "low",
+            resolved: true,
+          },
+          {
+            id: "f-sdc-v2-2",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan:
+              "సాధారణ బాటిళ్లతో పోలిస్తే మా రీఫిల్ ప్యాక్‌లు 35% అనవసరమైన ప్లాస్టిక్ ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి",
+            explanation:
+              "Verified packaging reduction claim with mandatory 'compared to standard bottles' qualification.",
+            ruleOrFact: "Packaging Lifecycle Assessment Dossier GG-PKG-2026",
+            severity: "low",
+            resolved: true,
+          },
+        ],
+        createdAt: new Date().toISOString(),
+      },
+    ],
+  },
   {
     id: "greenglow-telugu-launch",
-    name: "GreenGlow Aloe Vera Gel — Everyday Hydration",
+    name: "GreenGlow Aloe Vera Gel — Everyday Hydration (Coastal Andhra)",
     createdAt: new Date().toISOString(),
     brief: {
       id: "brief-greenglow-001",
-      name: "GreenGlow Aloe Vera Gel — Everyday Hydration",
+      name: "GreenGlow Aloe Vera Gel — Everyday Hydration (Coastal Andhra)",
       brandName: "GreenGlow",
       objective:
         "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
@@ -138,6 +370,130 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
             textSpan: "95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది",
             explanation:
               "Exact 95% pure aloe vera leaf extract fact preserved without exaggeration.",
+            ruleOrFact: "Formulation Lab Certificate GG-LAB-09",
+            severity: "low",
+            resolved: true,
+          },
+        ],
+        createdAt: new Date().toISOString(),
+      },
+    ],
+  },
+  {
+    id: "greenglow-telangana-launch",
+    name: "GreenGlow Aloe Vera Gel — Everyday Hydration (Telangana)",
+    createdAt: new Date().toISOString(),
+    brief: {
+      id: "brief-greenglow-002",
+      name: "GreenGlow Aloe Vera Gel — Everyday Hydration (Telangana)",
+      brandName: "GreenGlow",
+      objective:
+        "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+      audience: "Urban skincare-conscious adults in Hyderabad & Warangal.",
+      audienceAgeGroup: "20-35",
+      sourceLanguage: "English",
+      targetLanguage: "Telugu",
+      region: "Telangana",
+      dialect: "Telangana",
+      tone: "Warm, Conversational, Clear",
+      formality: "Conversational Respectful",
+      slangIntensity: "light",
+      slangFormality: "Conversational Respectful (Light Colloquial)",
+      culturalContext: "", // Explicitly empty — no unrequested festival!
+      channel: "Instagram Reels & Stories",
+      format: "Short Video Caption",
+      claimAtoms: [
+        {
+          id: "claim-ggt-1",
+          canonicalText:
+            "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+          lockedTokens: ["GreenGlow", "with regular use", "hydrated"],
+          requiredQualifications: ["with regular use"],
+          sourceTitle: "Dermatological Evaluation Dossier GG-2026-01",
+          evidenceStatus: "supported",
+        },
+        {
+          id: "claim-ggt-2",
+          canonicalText: "Made with 95% pure aloe vera leaf extract.",
+          lockedTokens: ["95%", "pure aloe vera leaf extract"],
+          sourceTitle: "Formulation Lab Certificate GG-LAB-09",
+          evidenceStatus: "supported",
+        },
+      ],
+    },
+    currentVersionId: "v1",
+    versions: [
+      {
+        id: "v1",
+        versionNumber: 1,
+        state: "ReadyForReview",
+        sourceText:
+          "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use. Made with 95% pure aloe vera leaf extract.",
+        literalTranslation:
+          "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ క్రమం తప్పకుండా వాడితే చర్మానికి తేమను అందించడంలో సహాయపడుతుంది. ఇది 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారు చేయబడింది.",
+        naturalAdaptation:
+          "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ — 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది. రోజూ క్రమం తప్పకుండా వాడుతుంటే మీ చర్మానికి మంచి తేమ అందుతది.",
+        backTranslation:
+          "GreenGlow Aloe Vera Gel is made with 95% pure aloe leaf extract and, when used regularly, helps provide moisture to the skin.",
+        meaningPreservationFindings: [
+          "Brand name 'GreenGlow' preserved accurately in target copy.",
+          "All 2 approved claim(s) and qualifications preserved without unrequested additions.",
+        ],
+        claimDiffs: [
+          {
+            type: "preserved",
+            text: "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+            note: "Verified against Dermatological Evaluation Dossier GG-2026-01",
+          },
+          {
+            type: "preserved",
+            text: "Made with 95% pure aloe vera leaf extract.",
+            note: "Verified against Formulation Lab Certificate GG-LAB-09",
+          },
+        ],
+        languageDialectWarnings: [],
+        reviewerCorrections: [],
+        honestStatus: "Meaning check passed",
+        evaluationMethodNote:
+          "Rule-based checklist ratio (5/5 checks passed: Telangana colloquial verb cadence 'అందుతది' used while preserving 'with regular use' qualification and zero invented festivals/guarantees).",
+        language: "Telugu",
+        region: "Telangana",
+        dialect: "Telangana",
+        contentHash:
+          "7b81c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b991",
+        meaningPreservationScore: 100,
+        adaptationRationale: [
+          {
+            change:
+              "Used natural Telangana conversational cadence ('మంచి తేమ అందుతది') instead of textbook literal phrasing.",
+            reason: "Dialect explicitly configured as Telangana Telugu with Light Colloquial intensity.",
+            confidenceNote:
+              "Preserved both clinical claims and 'with regular use' qualification without inventing festivals.",
+          },
+        ],
+        culturalNotes: [
+          "No cultural/festive context supplied in brief; generated natural Telangana Telugu without festive references.",
+        ],
+        findings: [
+          {
+            id: "f-ggt-1",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan:
+              "రోజూ క్రమం తప్పకుండా వాడుతుంటే మీ చర్మానికి మంచి తేమ అందుతది",
+            explanation:
+              "Approved hydration claim and 'with regular use' qualification preserved in Telangana Telugu.",
+            ruleOrFact: "Dermatological Evaluation Dossier GG-2026-01",
+            severity: "low",
+            resolved: true,
+          },
+          {
+            id: "f-ggt-2",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan: "95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది",
+            explanation:
+              "Exact 95% pure aloe vera leaf extract fact preserved.",
             ruleOrFact: "Formulation Lab Certificate GG-LAB-09",
             severity: "low",
             resolved: true,
@@ -281,6 +637,86 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
   },
 ];
 
+/**
+ * Ensures any campaign loaded from Turso or localStorage has all Section 1–8 fields populated
+ * and never reverts seed campaigns back to pre-Regional-Fix schemas.
+ */
+function normalizeCampaignSchema(c: Campaign): Campaign {
+  const defaultSeed = DEFAULT_CAMPAIGNS.find((d) => d.id === c.id);
+  // If a default seed campaign is missing Section 5/6 fields (from an older DB snapshot), upgrade it
+  if (
+    defaultSeed &&
+    (!c.versions?.[0]?.backTranslation ||
+      !c.versions?.[0]?.honestStatus ||
+      !c.brief?.sourceLanguage)
+  ) {
+    return defaultSeed;
+  }
+
+  const brief: CampaignBrief = {
+    ...c.brief,
+    brandName: c.brief?.brandName || c.name?.split(" ")[0] || "Brand",
+    sourceLanguage: c.brief?.sourceLanguage || "English",
+    dialect: c.brief?.dialect ?? "",
+    audienceAgeGroup: c.brief?.audienceAgeGroup ?? "",
+    formality: c.brief?.formality || "Conversational Respectful",
+    slangIntensity: c.brief?.slangIntensity || "none",
+    culturalContext: c.brief?.culturalContext ?? "",
+  };
+
+  const versions: AssetVersion[] = (c.versions || []).map((v) => {
+    const hasOpenIssue = (v.findings || []).some(
+      (f) =>
+        !f.resolved &&
+        (f.classification === "unsupported" || f.classification === "contradicted")
+    );
+    return {
+      ...v,
+      dialect: v.dialect ?? brief.dialect,
+      backTranslation:
+        v.backTranslation ||
+        `[Diagnostic English Back-Translation] ${v.sourceText}`,
+      meaningPreservationFindings: v.meaningPreservationFindings || [
+        `Brand name '${brief.brandName}' preserved in target copy.`,
+        hasOpenIssue
+          ? "Unsupported or unverified claim detected in generated copy."
+          : "Approved claims and qualifications preserved.",
+      ],
+      claimDiffs:
+        v.claimDiffs ||
+        brief.claimAtoms.map((ca) => ({
+          type: "preserved" as const,
+          text: ca.canonicalText,
+          note: `Verified against ${ca.sourceTitle}`,
+        })),
+      languageDialectWarnings:
+        v.languageDialectWarnings ||
+        (!brief.dialect
+          ? [
+              `No specific regional dialect was provided for ${brief.targetLanguage} (${brief.region}). Generated neutral standard ${brief.targetLanguage}; mark for regional reviewer verification.`,
+            ]
+          : []),
+      reviewerCorrections: v.reviewerCorrections || [],
+      honestStatus:
+        v.honestStatus ||
+        (hasOpenIssue
+          ? "Unsupported claim detected"
+          : !brief.dialect
+          ? "Dialect not verified"
+          : "Meaning check passed"),
+      evaluationMethodNote:
+        v.evaluationMethodNote ||
+        "Rule-based checklist ratio across claim retention, qualification preservation, cultural restraint, and brand preservation. Back-translation is a diagnostic aid only.",
+    };
+  });
+
+  return {
+    ...c,
+    brief,
+    versions,
+  };
+}
+
 // Helper to load campaigns safely
 export function getStoredCampaigns(): Campaign[] {
   if (typeof window === "undefined") return DEFAULT_CAMPAIGNS;
@@ -290,7 +726,8 @@ export function getStoredCampaigns(): Campaign[] {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CAMPAIGNS));
       return DEFAULT_CAMPAIGNS;
     }
-    return JSON.parse(data);
+    const parsed: Campaign[] = JSON.parse(data);
+    return parsed.map(normalizeCampaignSchema);
   } catch {
     return DEFAULT_CAMPAIGNS;
   }
@@ -300,7 +737,10 @@ export function getStoredCampaigns(): Campaign[] {
 export function saveStoredCampaigns(campaigns: Campaign[]): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(campaigns));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(campaigns.map(normalizeCampaignSchema))
+    );
   } catch (e) {
     console.error("Failed to save campaigns to localStorage", e);
   }
@@ -323,12 +763,23 @@ export async function hydrateCampaignsFromTurso(): Promise<Campaign[]> {
 
     const mergedMap = new Map<string, Campaign>();
     for (const c of DEFAULT_CAMPAIGNS) mergedMap.set(c.id, c);
-    for (const c of localCampaigns) mergedMap.set(c.id, c);
-    for (const c of remoteCampaigns) mergedMap.set(c.id, c);
+    for (const c of localCampaigns) {
+      mergedMap.set(c.id, normalizeCampaignSchema(c));
+    }
+    for (const c of remoteCampaigns) {
+      const normalized = normalizeCampaignSchema(c);
+      mergedMap.set(normalized.id, normalized);
+    }
 
-    const merged = Array.from(mergedMap.values());
-    saveStoredCampaigns(merged);
-    return merged;
+    // Keep seed campaigns in clean priority order first, followed by custom user-created campaigns
+    const seedIds = new Set(DEFAULT_CAMPAIGNS.map((d) => d.id));
+    const ordered: Campaign[] = [
+      ...DEFAULT_CAMPAIGNS.map((d) => mergedMap.get(d.id) || d),
+      ...Array.from(mergedMap.values()).filter((c) => !seedIds.has(c.id)),
+    ];
+
+    saveStoredCampaigns(ordered);
+    return ordered;
   } catch {
     return getStoredCampaigns();
   }

@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-type BadgeVariant = "default" | "forest" | "brass" | "sage" | "success" | "warning" | "danger" | "neutral" | "demo";
+type BadgeVariant = "default" | "forest" | "brass" | "sage" | "success" | "warning" | "danger" | "neutral" | "demo" | "supported" | "contradicted";
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -16,8 +16,10 @@ const variantStyles: Record<BadgeVariant, string> = {
   brass:    "bg-brass/10 text-brass-600 border border-brass/20",
   sage:     "bg-sage text-forest border border-sage-200",
   success:  "bg-emerald-50 text-emerald-800 border border-emerald-200",
+  supported:"bg-emerald-50 text-emerald-800 border border-emerald-200",
   warning:  "bg-amber-50 text-amber-800 border border-amber-200",
   danger:   "bg-red-50 text-red-800 border border-red-200",
+  contradicted: "bg-red-50 text-red-800 border border-red-200",
   neutral:  "bg-neutral-100 text-neutral-600 border border-neutral-200",
   demo:     "bg-brass/10 text-brass-600 border border-brass/30 font-medium",
 };
@@ -28,8 +30,10 @@ const dotStyles: Record<BadgeVariant, string> = {
   brass:   "bg-brass",
   sage:    "bg-forest/50",
   success: "bg-emerald-500",
+  supported: "bg-emerald-500",
   warning: "bg-amber-500",
   danger:  "bg-red-500",
+  contradicted: "bg-red-500",
   neutral: "bg-neutral-400",
   demo:    "bg-brass",
 };

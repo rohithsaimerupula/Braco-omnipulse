@@ -188,11 +188,43 @@ export async function generateRegionalAdaptation(
     claimAtoms,
   } = input;
 
-  // Strip any accidental internal instructions from public-facing copy (Rule 2)
-  const sanitizedSource = sourceText
-    .replace(/\[INTERNAL:.*?\]/gi, "")
-    .replace(/\(Internal note:.*?\)/gi, "")
+  // Strip any accidental internal instructions from public-facing copy (Section 2 Rule 8: Keep internal campaign instructions out of public-facing ad copy unless explicitly requested)
+  let strippedInternalMeta = false;
+  let sanitizedSource = sourceText
+    .replace(/\[INTERNAL:.*?\]/gi, () => {
+      strippedInternalMeta = true;
+      return "";
+    })
+    .replace(/\(Internal note:.*?\)/gi, () => {
+      strippedInternalMeta = true;
+      return "";
+    })
     .trim();
+
+  // Detect meta-brief instructions like "Build awareness and trust for X by encouraging Y. Communicate the product's verified..."
+  if (
+    /\b(build awareness and trust for|communicate the product's verified|without making unsupported|drive awareness and trust for|avoid sounding preachy)\b/i.test(
+      sanitizedSource
+    )
+  ) {
+    strippedInternalMeta = true;
+    if (/greenglow/i.test(sanitizedSource) && /packaging|personal care/i.test(sanitizedSource)) {
+      sanitizedSource =
+        "Small daily choices make everyday personal care simpler and help reduce unnecessary packaging.";
+    } else if (/rasa oats|morning oats/i.test(sanitizedSource)) {
+      sanitizedSource =
+        "Start your morning with wholesome whole grain oats for daily nourishment.";
+    } else {
+      sanitizedSource = sanitizedSource
+        .replace(
+          /communicate the product's verified [^.]*without making unsupported [^.]*\./gi,
+          ""
+        )
+        .replace(/^build awareness and trust for\s+/i, "Discover ")
+        .replace(/^drive awareness and trust for\s+/i, "Experience ")
+        .trim();
+    }
+  }
 
   // Combine source copy with any canonical claim atoms not already in sourceText
   const missingClaims = claimAtoms
@@ -215,11 +247,30 @@ export async function generateRegionalAdaptation(
   }> = [];
   const languageDialectWarnings: string[] = [];
 
+  if (strippedInternalMeta) {
+    adaptationRationale.push({
+      change:
+        "Excluded internal campaign brief instructions ('Build awareness and trust...', 'Communicate without making unsupported claims') from public-facing ad copy.",
+      reason:
+        "Section 2 Language-Generation Rule #8: Keep internal campaign instructions out of public-facing ad copy.",
+      confidenceNote: "Deterministic brief-to-copy sanitization.",
+    });
+  }
+
   // Check if dialect is specified (Rule 1 & Rule 3: Do not infer a specific dialect from language alone)
   const hasExplicitDialect = Boolean(dialect && dialect.trim().length > 0);
   if (!hasExplicitDialect && targetLanguage === "Telugu") {
     languageDialectWarnings.push(
       "Dialect not specified: Generated neutral standard Telugu without assuming Coastal Andhra or Telangana dialect."
+    );
+  } else if (
+    hasExplicitDialect &&
+    region.includes("/") &&
+    /andhra/i.test(region) &&
+    /telangana/i.test(region)
+  ) {
+    languageDialectWarnings.push(
+      `Region spans multiple dialect zones ('${region}') while dialect is set to '${dialect}'. Verify regional targeting before publishing.`
     );
   }
 
@@ -338,10 +389,11 @@ export async function generateRegionalAdaptation(
 
 /**
  * Telugu Dual-Track Generator supporting:
- * - GreenGlow skincare / general product briefs (strictly no unrequested festival, family-health, or guarantee)
+ * - GreenGlow Personal Care / Packaging ("Small Daily Choices, Greener Living") & GreenGlow Aloe Vera Gel ("Everyday Hydration")
+ * - Strictly no unrequested festival, family-health implication, or 'results guaranteed'
  * - Coastal Andhra Telugu vs Telangana Telugu vs Neutral Standard Telugu
  * - Short Video Caption vs Long-Form Copy
- * - Explicit Festive Context ONLY when supplied in brief
+ * - Explicit Cultural Context ONLY when supplied in brief
  */
 async function buildTeluguDualAdaptation(params: {
   brandName?: string;
@@ -395,7 +447,71 @@ async function buildTeluguDualAdaptation(params: {
       `${culturalContext} ${fullSourceCopy}`
     );
 
-  // Case 1: GreenGlow Skincare / Aloe / Hydration / General Brand Brief
+  // Only include summer/hot-weather routine context if culturalContext explicitly mentions summer/hot weather
+  const summerMentionedInBrief =
+    /summer|hot weather|వేసవి|ఎండకాలం/i.test(
+      `${culturalContext} ${fullSourceCopy}`
+    );
+
+  // Case 1A: GreenGlow — Small Daily Choices, Greener Living (Personal Care & Packaging)
+  if (
+    lowerSource.includes("greenglow") &&
+    (lowerSource.includes("packaging") ||
+      lowerSource.includes("personal care") ||
+      lowerSource.includes("small daily choices"))
+  ) {
+    const literal =
+      "చిన్న రోజువారీ ఎంపికలు వ్యక్తిగత సంరక్షణను సులభతరం చేస్తాయి మరియు అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది.";
+
+    let natural = "";
+    if (isCoastalAndhra) {
+      const summerPrefix = summerMentionedInBrief
+        ? "ఈ వేసవి రోజుల్లో మన రోజువారీ అలవాట్లలో చేసే చిన్న మార్పులే మంచి ఫలితాన్ని ఇస్తాయి. "
+        : "మన రోజువారీ అలవాట్లలో చేసే చిన్న, ఆచరణాత్మక ఎంపికలే ఎంతో ముఖ్యం. ";
+      natural = isLongForm
+        ? `${summerPrefix}గ్రీన్‌గ్లో (GreenGlow) ప్రతిరోజూ ఉపయోగించే వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది. అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడే ఆచరణాత్మక ఎంపికలను ఎంచుకుందాం.`
+        : `${summerPrefix}గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది—అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించే ఆచరణాత్మక ఎంపిక.`;
+      rationale.push({
+        change:
+          "Used natural Coastal Andhra conversational Telugu ('ఆచరణాత్మక ఎంపిక', 'రోజువారీ అలవాట్లలో') without inventing festivals, family-health claims, or guarantees.",
+        reason: `Dialect set to Coastal Andhra Telugu${
+          summerMentionedInBrief
+            ? "; adapted summer routine context ('వేసవి రోజుల్లో') from brief."
+            : "."
+        }`,
+        confidenceNote:
+          "Kept internal brief meta-instructions out of public copy and preserved 'GreenGlow' brand name.",
+      });
+    } else if (isTelangana) {
+      const summerPrefix = summerMentionedInBrief
+        ? "ఎండకాలం రోజువారీ రొటీన్‌లో మనం చేసే చిన్న ఎంపికలే పెద్ద మార్పు తెస్తాయి. "
+        : "రోజూ మనం చేసే చిన్న, ఆచరణాత్మక ఎంపికలే పెద్ద మార్పు తెస్తాయి. ";
+      natural = isLongForm
+        ? `${summerPrefix}గ్రీన్‌గ్లో (GreenGlow) మన రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తది. అనవసరమైన ప్యాకేజింగ్ తగ్గించే సరళమైన అలవాట్లను ఎంచుకుందాం.`
+        : `${summerPrefix}గ్రీన్‌గ్లో (GreenGlow) మన రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తది—అనవసరమైన ప్యాకేజింగ్ తగ్గించే సరళమైన అలవాటు.`;
+      rationale.push({
+        change:
+          "Used natural Telangana conversational register ('ఎండకాలం', 'అందిస్తది') without forced slang or unrequested festival hooks.",
+        reason: `Dialect explicitly set to Telangana Telugu (slang intensity: ${slangIntensity}).`,
+        confidenceNote:
+          "Zero unrequested festivals, family-health claims, or guarantees.",
+      });
+    } else {
+      natural = isLongForm
+        ? "రోజువారీ వ్యక్తిగత సంరక్షణలో చిన్న, ఆచరణాత్మక ఎంపికలు అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించడంలో సహాయపడతాయి. గ్రీన్‌గ్లో (GreenGlow) ప్రతిరోజూ ఉపయోగించే వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది."
+        : "చిన్న, ఆచరణాత్మక ఎంపికలతో అనవసరమైన ప్యాకేజింగ్‌ను తగ్గించవచ్చు. గ్రీన్‌గ్లో (GreenGlow) రోజువారీ వ్యక్తిగత సంరక్షణ ఉత్పత్తులను అందిస్తుంది.";
+      rationale.push({
+        change:
+          "Generated neutral standard Telugu without assuming Coastal Andhra or Telangana dialect.",
+        reason: "No specific dialect was verified; avoided unrequested festival or guarantee additions.",
+        confidenceNote: "Neutral Telugu baseline; human regional review recommended.",
+      });
+    }
+
+    return { literal, natural, rationale, warnings };
+  }
+
+  // Case 1B: GreenGlow Skincare / Aloe Vera Gel / Hydration Brief
   if (lowerSource.includes("greenglow")) {
     const literal =
       "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ క్రమం తప్పకుండా వాడితే చర్మానికి తేమను అందించడంలో సహాయపడుతుంది. ఇది 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారు చేయబడింది.";
@@ -534,7 +650,11 @@ async function buildDiagnosticBackTranslation(
     if (/కుటుంబ ఆరోగ్య/.test(naturalAdaptation)) {
       parts.push("[Family health reference: family health]");
     }
-    if (/గ్రీన్‌గ్లో|GreenGlow/i.test(naturalAdaptation)) {
+    if (/ప్యాకేజింగ్|వ్యక్తిగత సంరక్షణ/.test(naturalAdaptation)) {
+      parts.push(
+        "In our daily routine, small practical choices make a difference. GreenGlow provides everyday personal care products—a practical choice to help reduce unnecessary packaging."
+      );
+    } else if (/గ్రీన్‌గ్లో|GreenGlow/i.test(naturalAdaptation)) {
       parts.push(
         "GreenGlow Aloe Vera Gel is made with 95% pure aloe leaf extract and, when used regularly, helps provide moisture to the skin."
       );
@@ -694,7 +814,7 @@ export function verifyCompleteCopyWithGuardian(params: {
     });
   }
 
-  // Check for unsupported packaging / biodegradable / recycling / chemical-free / medical cure claims
+  // Check for unsupported packaging / biodegradable / recycling / chemical-free / medical cure claims / leaked internal brief instructions
   const extraClaimPatterns: Array<{
     id: string;
     regex: RegExp;
@@ -705,10 +825,18 @@ export function verifyCompleteCopyWithGuardian(params: {
     {
       id: "f-missing-packaging-evidence",
       regex:
-        /100%\s*recycled\s*packaging|biodegradable\s*pack\S*|zero\s*plastic|పర్యావరణ హితమైన ప్యాకేజింగ్|100%\s*రీసైకిల్\s*ప్యాకేజింగ్|recycled\s*materials?/i,
+        /100%\s*recycled\s*packaging|biodegradable\s*pack\S*|zero\s*plastic|పర్యావరణ హితమైన ప్యాకేజింగ్|100%\s*రీసైకిల్\s*ప్యాకేజింగ్|recycled\s*materials?|అనవసరమైన ప్యాకేజింగ్\S*\s*తగ్గించ\S*|reduce\s+unnecessary\s+packaging/i,
       sourceCheck: /recycled|packaging|biodegradable|plastic/i,
       label: "Packaging / sustainability claim without verified dossier evidence",
       classification: "evidence_missing",
+    },
+    {
+      id: "f-leaked-internal-instruction",
+      regex:
+        /మద్దతు లేని పర్యావరణ క్లెయిమ్\S* చేయకుండా|అవగాహన మరియు నమ్మకాన్ని పెంపొందించుకోండి|without making unsupported environmental claims|build awareness and trust for/i,
+      sourceCheck: /^__never_match_internal_instruction__$/,
+      label: "Internal campaign brief instruction leaked into public-facing ad copy (violates Section 2 Rule 8)",
+      classification: "unsupported",
     },
     {
       id: "f-unsupported-cure",

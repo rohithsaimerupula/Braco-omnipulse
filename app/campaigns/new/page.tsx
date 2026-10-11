@@ -68,6 +68,48 @@ export default function BriefBuilderPage() {
   const [newClaimText, setNewClaimText] = useState("");
   const [newClaimSource, setNewClaimSource] = useState("");
 
+  const loadGreenGlowSmallDailyChoicesPreset = () => {
+    setName("GreenGlow — Small Daily Choices, Greener Living");
+    setBrandName("GreenGlow");
+    setObjective(
+      "Build awareness and trust for GreenGlow's everyday personal care products by encouraging small, practical choices that can reduce unnecessary packaging. Communicate the product's verified packaging benefits without making unsupported environmental claims."
+    );
+    setAudience(
+      "Urban and semi-urban Indian consumers aged 18–35 who are interested in personal care, sustainable living and affordable everyday products."
+    );
+    setAudienceAgeGroup("18-35");
+    setSourceLanguage("English");
+    setTargetLanguage("Telugu");
+    setRegion("Andhra Pradesh");
+    setDialect("Coastal Andhra");
+    setTone("Friendly, fresh, optimistic and trustworthy");
+    setFormality("Semi-formal and conversational");
+    setSlangIntensity("none");
+    setCulturalContext(
+      "A summer sustainability campaign encouraging consumers to make mindful everyday choices during hot weather."
+    );
+    setChannel("Social Video & Reels");
+    setFormat("Short Video Caption");
+    setClaimAtoms([
+      {
+        id: "claim-gg-sdc-1",
+        canonicalText: "GreenGlow offers everyday personal care products.",
+        lockedTokens: ["GreenGlow", "everyday personal care"],
+        sourceTitle: "Brand Product Catalog Dossier GG-CAT-2026",
+        evidenceStatus: "supported",
+      },
+      {
+        id: "claim-gg-sdc-2",
+        canonicalText:
+          "GreenGlow refill packs help reduce unnecessary plastic packaging by 35% compared to standard bottles.",
+        lockedTokens: ["reduce unnecessary", "packaging", "35%"],
+        requiredQualifications: ["compared to standard bottles"],
+        sourceTitle: "Packaging Lifecycle Assessment Dossier GG-PKG-2026",
+        evidenceStatus: "supported",
+      },
+    ]);
+  };
+
   const loadGreenGlowPreset = () => {
     setName("GreenGlow Aloe Vera Gel — Everyday Hydration");
     setBrandName("GreenGlow");
@@ -311,11 +353,19 @@ export default function BriefBuilderPage() {
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
+              variant="primary"
+              size="xs"
+              onClick={loadGreenGlowSmallDailyChoicesPreset}
+            >
+              1. GreenGlow — Small Daily Choices, Greener Living (Packaging)
+            </Button>
+            <Button
+              type="button"
               variant="outline"
               size="xs"
               onClick={loadGreenGlowPreset}
             >
-              1. GreenGlow → Coastal Andhra Telugu (Acceptance Criterion)
+              2. GreenGlow Aloe → Coastal Andhra Telugu
             </Button>
             <Button
               type="button"
@@ -323,7 +373,7 @@ export default function BriefBuilderPage() {
               size="xs"
               onClick={loadGreenGlowTelanganaPreset}
             >
-              2. GreenGlow → Telangana Telugu
+              3. GreenGlow Aloe → Telangana Telugu
             </Button>
             <Button
               type="button"
@@ -331,7 +381,7 @@ export default function BriefBuilderPage() {
               size="xs"
               onClick={loadGreenGlowNeutralPreset}
             >
-              3. GreenGlow → Dialect Omitted (Neutral)
+              4. GreenGlow → Dialect Omitted (Neutral)
             </Button>
             <Button
               type="button"
@@ -339,7 +389,7 @@ export default function BriefBuilderPage() {
               size="xs"
               onClick={loadTeluguToEnglishPreset}
             >
-              4. Telugu Source → English Target
+              5. Telugu Source → English Target
             </Button>
             <Button
               type="button"
@@ -347,7 +397,7 @@ export default function BriefBuilderPage() {
               size="xs"
               onClick={loadFestiveOatsPreset}
             >
-              5. Diwali Oats (Explicit Festival Supplied)
+              6. Diwali Oats (Explicit Festival Supplied)
             </Button>
           </div>
         </div>

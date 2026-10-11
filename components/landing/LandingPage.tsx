@@ -248,34 +248,40 @@ export default function LandingPage() {
       <section id="solutions" className="section-padding bg-ivory" aria-labelledby="adaptation-headline">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Visual */}
+            {/* Visual: GreenGlow A-D Regional Comparison */}
             <div className="space-y-3">
               {[
                 {
-                  lang: "Original (English)",
-                  text: "Discover the richness of authentic Indian spices.",
-                  tag: "Source",
+                  lang: "A. Original Source Copy (English)",
+                  text: "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use. Made with 95% pure aloe vera leaf extract.",
+                  tag: "Source Brief",
                   tagVariant: "neutral" as const,
                 },
                 {
-                  lang: "Telugu adaptation",
-                  text: "నిజమైన భారతీయ సుగంధ ద్రవ్యాల సమృద్ధిని అనుభవించండి.",
-                  tag: "Regional",
+                  lang: "C1. Coastal Andhra Telugu Adaptation",
+                  text: "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ — 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది. క్రమం తప్పకుండా వాడితే మీ చర్మానికి చక్కని తేమను అందించడంలో సహాయపడుతుంది.",
+                  tag: "Meaning check passed",
                   tagVariant: "forest" as const,
                 },
                 {
-                  lang: "Tamil adaptation",
-                  text: "உண்மையான இந்திய மசாலாவின் செழுமையை அனுபவியுங்கள்.",
-                  tag: "Regional",
+                  lang: "C2. Telangana Telugu Adaptation",
+                  text: "రోజూ మన చర్మం తాజాగా, తేమగా ఉండాలంటే గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ మంచి తోడు. 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది—క్రమం తప్పకుండా వాడితే చర్మానికి తేమను అందించడంలో సహాయపడుతుంది.",
+                  tag: "Meaning check passed",
                   tagVariant: "forest" as const,
+                },
+                {
+                  lang: "D. Diagnostic Back-Translation (Reviewer Aid)",
+                  text: "GreenGlow Aloe Vera Gel is made with 95% pure aloe leaf extract and, when used regularly, helps provide moisture to the skin.",
+                  tag: "Diagnostic Aid Only",
+                  tagVariant: "neutral" as const,
                 },
               ].map((v) => (
                 <div
                   key={v.lang}
-                  className="p-5 rounded-xl border border-forest/8 bg-white shadow-editorial"
+                  className="p-4 rounded-xl border border-forest/8 bg-white shadow-editorial"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-neutral-400 uppercase tracking-wide">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
                       {v.lang}
                     </span>
                     <Badge variant={v.tagVariant}>{v.tag}</Badge>
@@ -288,10 +294,8 @@ export default function LandingPage() {
               <div className="p-4 rounded-xl bg-forest/5 border border-forest/10">
                 <div className="flex items-start gap-2.5">
                   <Eye size={14} className="text-brass shrink-0 mt-0.5" />
-                  <p className="text-xs text-graphite/60 leading-relaxed">
-                    <strong className="text-forest">Adaptation note:</strong> Telugu and Tamil versions
-                    use culturally relevant phrasing—&quot;experience the richness&quot; captures the
-                    immersive register preferred in southern market food advertising.
+                  <p className="text-xs text-graphite/70 leading-relaxed">
+                    <strong className="text-forest">Cultural &amp; Factual Restraint:</strong> Never infers dialect from language alone, never invents unrequested festivals or &ldquo;results guaranteed&rdquo; claims, and strips internal brief instructions from public ad copy.
                   </p>
                 </div>
               </div>
@@ -300,25 +304,23 @@ export default function LandingPage() {
             <div>
               <div className="tag-editorial mb-5">
                 <Globe2 size={11} />
-                Regional adaptation
+                Regional Language Quality Engine (Sections 1–8)
               </div>
               <h2
                 id="adaptation-headline"
                 className="font-serif text-display-sm font-semibold text-forest text-balance mb-6"
               >
-                Beyond translation. True cultural adaptation.
+                Beyond literal translation. Dialect-aware, claim-verified adaptation.
               </h2>
               <p className="text-neutral-500 leading-relaxed mb-8">
-                Our AI regional content engine adapts campaigns to local context, idiom and
-                audience sensibilities—not just language. Every adaptation includes a traceable
-                explanation of the creative decisions made.
+                Our 11-field Regional Engine separates source/target language, state, optional dialect (Coastal Andhra vs. Telangana vs. Neutral Telugu), formality, slang intensity, format, and explicit cultural context—backed by a 7-point Complete-Copy Brand Guardian and A–H Translation Comparison.
               </p>
               <ul className="space-y-4">
                 {[
-                  "Culturally contextualised copy and hooks",
-                  "Traceable inputs and model provenance",
-                  "Explanation of every adaptation decision",
-                  "Human review flag for sensitive or ambiguous content",
+                  "11 separate regional configuration fields (no dialect inference)",
+                  "A–H Translation Comparison with diagnostic back-translation",
+                  "Complete-copy Brand Guardian checks (catches guarantees & unrequested festivals)",
+                  "Honest evaluation statuses (Meaning check passed / Unsupported claim detected / Dialect not verified)",
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-graphite/70">
                     <CheckCircle2 size={15} className="text-brass shrink-0" />

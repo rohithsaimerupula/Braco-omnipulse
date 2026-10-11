@@ -42,8 +42,23 @@ export default async function DashboardLayout({
         {[
           {
             icon: <LayoutDashboard size={15} />,
-            label: "Overview",
+            label: "Sections 1–8 Hub",
             href: "/dashboard",
+          },
+          {
+            icon: <FileText size={15} />,
+            label: "New Campaign (11-Field)",
+            href: "/campaigns/new",
+          },
+          {
+            icon: <Globe2 size={15} />,
+            label: "A–H Translation Studio",
+            href: "/campaigns/greenglow-small-daily-choices-greener-living/studio",
+          },
+          {
+            icon: <CheckSquare size={15} />,
+            label: "Brand Guardian (7-Pass)",
+            href: "/campaigns/greenglow-small-daily-choices-greener-living/guardian",
           },
           {
             icon: <Library size={15} />,
@@ -51,29 +66,24 @@ export default async function DashboardLayout({
             href: "/dashboard/library",
           },
           {
-            icon: <FileText size={15} />,
-            label: "New Campaign",
-            href: "/campaigns/new",
-          },
-          {
             icon: <CheckSquare size={15} />,
             label: "Approvals & RBAC",
-            href: "/approvals/greenglow-telugu-launch",
+            href: "/approvals/greenglow-small-daily-choices-greener-living",
           },
           {
             icon: <Users size={15} />,
             label: "Creator Match",
-            href: "/campaigns/greenglow-telugu-launch/creators",
+            href: "/campaigns/greenglow-small-daily-choices-greener-living/creators",
           },
           {
             icon: <BarChart3 size={15} />,
             label: "A/B & Analytics",
-            href: "/campaigns/greenglow-telugu-launch/experiment",
+            href: "/campaigns/greenglow-small-daily-choices-greener-living/experiment",
           },
           {
             icon: <FileCheck2 size={15} />,
             label: "Decision Passport",
-            href: "/campaigns/greenglow-telugu-launch/passport",
+            href: "/campaigns/greenglow-small-daily-choices-greener-living/passport",
           },
           {
             icon: <Settings size={15} />,
@@ -84,7 +94,7 @@ export default async function DashboardLayout({
           <Link
             key={item.label}
             href={item.href}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors text-ivory/60 hover:text-ivory hover:bg-ivory/10"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-ivory/75 hover:text-ivory hover:bg-ivory/10"
           >
             {item.icon}
             {item.label}
