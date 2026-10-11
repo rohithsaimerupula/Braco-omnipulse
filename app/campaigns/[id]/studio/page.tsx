@@ -603,9 +603,58 @@ export default function RegionalCreativeStudioPage() {
                 </div>
               </div>
             </div>
+
+            {/* Section 8: Honest Implementation Status Labeling */}
+            <div className="bg-white rounded-xl border border-forest/10 p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-forest">
+                  Section 8: Honest Implementation Status Ledger
+                </h3>
+                <Badge variant="neutral">
+                  Transparent Architecture Disclosure
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 rounded-lg bg-green-50/70 border border-green-200">
+                  <span className="font-bold text-green-900 uppercase text-2xs block mb-1">
+                    Implemented (Live)
+                  </span>
+                  <p className="text-2xs text-green-900/90 leading-relaxed">
+                    11-field regional configuration, dialect non-inference,
+                    cultural-context controls, complete-copy Brand Guardian
+                    (7 detection categories), A–H translation comparison,
+                    honest evaluation statuses, 12 regression tests, Turso
+                    libSQL persistence, MyMemory neural API + Gemini/Sarvam
+                    live adapters.
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-amber-50/70 border border-amber-200">
+                  <span className="font-bold text-amber-900 uppercase text-2xs block mb-1">
+                    Mocked-Demo (Fallback Fixtures)
+                  </span>
+                  <p className="text-2xs text-amber-900/90 leading-relaxed">
+                    Zero-key offline fallback templates when external LLM keys
+                    are not supplied; sample creator directory profiles and
+                    sample ad-network telemetry presets alongside real CSV
+                    upload.
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-neutral-100 border border-neutral-200">
+                  <span className="font-bold text-neutral-800 uppercase text-2xs block mb-1">
+                    Future Work
+                  </span>
+                  <p className="text-2xs text-neutral-600 leading-relaxed">
+                    Multi-reviewer blind inter-annotator agreement scoring by
+                    certified native regional linguists; direct OAuth webhook
+                    streaming from live Meta/Google Ads production accounts.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>
     </div>
   );
 }
+

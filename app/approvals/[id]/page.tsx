@@ -516,7 +516,7 @@ export default function ReviewCenterPage() {
         <div className="space-y-6">
           <div className="bg-white rounded-xl border border-forest/10 p-5 shadow-sm">
             <h3 className="text-sm font-bold text-forest mb-4 flex items-center gap-2">
-              <Lock size={16} /> Server-Enforced Approval Gates
+              <Lock size={16} /> Server-Enforced Approval Gates (Section 6 &amp; 7)
             </h3>
 
             <ul className="space-y-3.5 text-xs">
@@ -525,16 +525,16 @@ export default function ReviewCenterPage() {
                 <div>
                   <p className="font-semibold text-graphite">Exact SHA-256 Hash Match</p>
                   <p className="text-neutral-500">
-                    Content matches verified Guardian output hash.
+                    Content matches verified Guardian output hash ({currentVersion.contentHash.slice(0, 12)}...).
                   </p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
                 <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-graphite">Zero Critical Findings</p>
+                  <p className="font-semibold text-graphite">Complete-Copy Brand Guardian</p>
                   <p className="text-neutral-500">
-                    All 4-Way Claim Verification checks passed.
+                    Checked for unsupported guarantees, unrequested festivals, missing qualifications &amp; brief contradictions.
                   </p>
                 </div>
               </li>
@@ -543,20 +543,39 @@ export default function ReviewCenterPage() {
                 <div>
                   <p className="font-semibold text-graphite">Locked Claim Atoms Intact</p>
                   <p className="text-neutral-500">
-                    100% daily iron &amp; warm milk tokens verified.
+                    {campaign.brief.claimAtoms
+                      .map((c) => (c.requiredQualifications || c.lockedTokens).join(", "))
+                      .join(" • ") || "All approved claims verified"}
                   </p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
                 <ShieldCheck size={16} className="text-forest shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-graphite">Meaning Preservation: {currentVersion.meaningPreservationScore}%</p>
-                  <p className="text-neutral-500">
-                    Exceeds 90% semantic fidelity threshold.
+                  <p className="font-semibold text-graphite">
+                    Honest Status: {currentVersion.honestStatus || "Meaning check passed"}
+                  </p>
+                  <p className="text-neutral-500 text-2xs mt-0.5">
+                    {currentVersion.evaluationMethodNote ||
+                      "Documented rule checklist (Section 6). Back-translation is a diagnostic aid only; qualified regional reviewer sign-off required."}
                   </p>
                 </div>
               </li>
             </ul>
+          </div>
+
+          {/* Section 7: Qualified Regional-Language Reviewer Evaluation */}
+          <div className="bg-amber-50/70 rounded-xl border border-amber-200 p-4 text-xs space-y-2">
+            <h4 className="font-bold text-amber-900 uppercase tracking-wider text-2xs">
+              Section 7: Qualified Regional Reviewer Standard
+            </h4>
+            <p className="text-amber-900/90 leading-relaxed text-2xs">
+              Automated checks and English back-translation are diagnostic aids only. Native-level accuracy for{" "}
+              <strong>
+                {campaign.brief.targetLanguage} ({campaign.brief.dialect || "Neutral Regional"})
+              </strong>{" "}
+              is established only when a qualified regional-language reviewer signs off above.
+            </p>
           </div>
 
           {/* Version History List */}
@@ -576,7 +595,7 @@ export default function ReviewCenterPage() {
                 >
                   <div>
                     <span className="text-forest font-bold">{ver.id}</span> •{" "}
-                    <span>{ver.state}</span>
+                    <span>{ver.honestStatus || ver.state}</span>
                     <p className="text-2xs font-mono text-neutral-400">
                       {ver.contentHash.slice(0, 12)}...
                     </p>

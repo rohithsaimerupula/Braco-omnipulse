@@ -146,6 +146,60 @@ export default function BriefBuilderPage() {
     ]);
   };
 
+  const loadGreenGlowTelanganaPreset = () => {
+    loadGreenGlowPreset();
+    setName("GreenGlow Aloe Vera Gel — Telangana Hydration");
+    setRegion("Telangana");
+    setDialect("Telangana");
+    setSlangIntensity("light");
+  };
+
+  const loadGreenGlowNeutralPreset = () => {
+    loadGreenGlowPreset();
+    setName("GreenGlow Aloe Vera Gel — Neutral Telugu (No Dialect)");
+    setRegion("Andhra Pradesh & Telangana");
+    setDialect(""); // Intentionally empty — triggers 'Dialect not verified'
+    setSlangIntensity("none");
+  };
+
+  const loadTeluguToEnglishPreset = () => {
+    setName("GreenGlow Telugu Source to English Adaptation");
+    setBrandName("GreenGlow");
+    setObjective(
+      "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ క్రమం తప్పకుండా వాడితే చర్మానికి తేమను అందించడంలో సహాయపడుతుంది. ఇది 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారు చేయబడింది."
+    );
+    setAudience("Pan-India skincare consumers reading English social copy.");
+    setAudienceAgeGroup("22-38");
+    setSourceLanguage("Telugu");
+    setTargetLanguage("English");
+    setRegion("Pan-India");
+    setDialect("");
+    setTone("Clear, Calm, Informative");
+    setFormality("Conversational Respectful");
+    setSlangIntensity("none");
+    setCulturalContext("");
+    setChannel("Meta & Instagram Ads");
+    setFormat("Short Video Caption");
+    setClaimAtoms([
+      {
+        id: "claim-te-en-1",
+        canonicalText:
+          "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+        lockedTokens: ["GreenGlow", "with regular use"],
+        requiredQualifications: ["with regular use"],
+        sourceTitle: "Dermatological Evaluation Dossier GG-2026-01",
+        evidenceStatus: "supported",
+      },
+      {
+        id: "claim-te-en-2",
+        canonicalText: "Made with 95% pure aloe vera leaf extract.",
+        lockedTokens: ["95%"],
+        sourceTitle: "Formulation Lab Certificate GG-LAB-09",
+        evidenceStatus: "supported",
+      },
+    ]);
+  };
+
   const handleAddClaim = () => {
     if (!newClaimText.trim()) return;
     const newAtom: ClaimAtom = {
@@ -206,7 +260,7 @@ export default function BriefBuilderPage() {
           </Link>
           <div>
             <h1 className="font-serif text-lg font-semibold text-forest">
-              Create Campaign Brief (Regional Configuration)
+              Create Campaign Brief (11-Field Regional Configuration)
             </h1>
             <p className="text-xs text-neutral-500">
               Step {step} of 3 • Separate Dialect, Formality, Slang &amp; Cultural Controls
@@ -245,22 +299,47 @@ export default function BriefBuilderPage() {
       </header>
 
       <main className="max-w-3xl mx-auto mt-8 px-6">
-        {/* Quick Benchmark Presets */}
-        <div className="bg-sage/15 border border-sage-300/60 rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Quick Benchmark Presets (Section 7 & Acceptance Criterion) */}
+        <div className="bg-sage/15 border border-sage-300/60 rounded-xl p-4 mb-6 space-y-3">
           <div className="flex items-center gap-2 text-xs text-forest">
             <Sparkles size={15} className="text-brass shrink-0" />
             <span>
-              <strong>Test Case Presets:</strong> Load canonical briefs to verify Regional Quality Rules
+              <strong>Section 7 &amp; Acceptance Criterion Benchmark Presets:</strong>{" "}
+              Click any scenario to populate the 11 regional fields and test immediately
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"
               size="xs"
               onClick={loadGreenGlowPreset}
             >
-              GreenGlow Test Case (No Festival/Guarantee)
+              1. GreenGlow → Coastal Andhra Telugu (Acceptance Criterion)
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              onClick={loadGreenGlowTelanganaPreset}
+            >
+              2. GreenGlow → Telangana Telugu
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              onClick={loadGreenGlowNeutralPreset}
+            >
+              3. GreenGlow → Dialect Omitted (Neutral)
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              onClick={loadTeluguToEnglishPreset}
+            >
+              4. Telugu Source → English Target
             </Button>
             <Button
               type="button"
@@ -268,7 +347,7 @@ export default function BriefBuilderPage() {
               size="xs"
               onClick={loadFestiveOatsPreset}
             >
-              Diwali Oats Case (Explicit Festival)
+              5. Diwali Oats (Explicit Festival Supplied)
             </Button>
           </div>
         </div>
