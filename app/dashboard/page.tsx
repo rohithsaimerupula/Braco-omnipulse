@@ -14,7 +14,10 @@ import {
   GitBranch,
 } from "lucide-react";
 import Link from "next/link";
-import { getStoredCampaigns } from "@/lib/campaigns/store";
+import {
+  getStoredCampaigns,
+  hydrateCampaignsFromTurso,
+} from "@/lib/campaigns/store";
 import { Campaign } from "@/lib/campaigns/types";
 
 const workflowMetrics = [
@@ -46,6 +49,9 @@ export default function DashboardOverviewPage() {
 
   useEffect(() => {
     setCampaigns(getStoredCampaigns());
+    hydrateCampaignsFromTurso().then((synced) => {
+      setCampaigns(synced);
+    });
   }, []);
 
   return (

@@ -73,19 +73,20 @@ export default function BrandGuardianPage() {
     if (!campaign || !currentVersion) return;
     setIsApplyingFix(true);
 
-    // Replace the problematic text span in the copy
     let updatedText = currentVersion.naturalAdaptation;
     if (finding.suggestedFix) {
-      // Clean replace of "ఫలితాలు గ్యారెంటీ!" with "సహజంగా శక్తిని పొందండి!"
-      updatedText = updatedText.replace(
-        /ఫలితాలు గ్యారెంటీ!|ముగింపులు ఖాయం!|முடிவுகள் நிச்சயம்!/g,
-        "సహజంగా శక్తిని పొందండి!"
-      );
-      if (!updatedText.includes("సహజంగా శక్తిని పొందండి!")) {
-        updatedText = updatedText.replace(
-          "ఫలితాలు గ్యారెంటీ",
-          "సహజంగా శక్తిని పొందండి"
-        );
+      const quotedMatch = finding.suggestedFix.match(/'([^']+)'/);
+      const replacementPhrase = quotedMatch
+        ? quotedMatch[1]
+        : "సహజంగా శక్తిని పొందండి!";
+
+      const prohibitedRegex =
+        /ఫలితాలు గ్యారెంటీ!|ముగింపులు ఖాయం!|முடிவுகள் நிச்சயம்!|खात्रीशीर निकाल!|परिणामों की १००% गारंटी!|ಫಲಿತಾಂಶ ಗ್ಯಾರಂಟಿ!|ഫലം ഉറപ്പ്!|ফলাফলের গ্যারান্টি!|પરિણામની ગેરંટી!|ਨਤੀਜਿਆਂ ਦੀ ਗਾਰੰਟੀ!|ଫଳାଫଳ ଗ୍ୟାରେଣ୍ଟି!|గ్యారెంటీ|guarantee[d]?/gi;
+
+      if (prohibitedRegex.test(updatedText)) {
+        updatedText = updatedText.replace(prohibitedRegex, replacementPhrase);
+      } else {
+        updatedText = `${updatedText} ${replacementPhrase}`;
       }
     }
 
@@ -93,7 +94,7 @@ export default function BrandGuardianPage() {
       campaign.id,
       currentVersion.id,
       updatedText,
-      `Resolved finding ${finding.id}: Removed non-compliant claim per ASCI Guideline 1.4`
+      `Resolved finding ${finding.id}: Replaced prohibited claim per ASCI Guideline 1.4`
     );
 
     const refreshed = getCampaignById(campaign.id);
