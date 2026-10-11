@@ -377,18 +377,20 @@ export function IndiaStateMap({
           </div>
 
           {/* Action CTA */}
-          <div className="pt-3 border-t border-forest/8">
-            <button
-              onClick={() => {
-                alert(
-                  `Campaign workflow activated for ${activeState.name} in ${activeState.motherTongue.name} (${activeState.motherTongue.nativeScript})!`
-                );
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-forest text-ivory text-xs font-semibold hover:bg-forest/90 transition-all shadow-xs"
+          <div className="pt-3 border-t border-forest/8 flex flex-col sm:flex-row gap-2">
+            <a
+              href="/campaigns/new"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-forest text-ivory text-xs font-semibold hover:bg-forest/90 transition-all shadow-xs"
             >
               <span>Launch {activeState.motherTongue.name} Campaign</span>
               <ArrowRight size={14} />
-            </button>
+            </a>
+            <a
+              href="/dashboard"
+              className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl bg-brass/15 text-forest text-xs font-semibold hover:bg-brass/25 transition-all"
+            >
+              <span>Sections 1–8 Hub</span>
+            </a>
           </div>
         </div>
       </div>

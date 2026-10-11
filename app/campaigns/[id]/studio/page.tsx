@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import {
   getCampaignById,
+  hydrateCampaignsFromTurso,
   generateDualAdaptations,
   createNewVersionFromEdit,
 } from "@/lib/campaigns/store";
@@ -43,15 +44,20 @@ export default function RegionalCreativeStudioPage() {
   const [editNote, setEditNote] = useState("");
 
   useEffect(() => {
-    const loaded = getCampaignById(campaignId);
-    if (loaded) {
-      setCampaign(loaded);
-      const ver =
-        loaded.versions.find((v) => v.id === loaded.currentVersionId) ||
-        loaded.versions[loaded.versions.length - 1];
-      setCurrentVersion(ver);
-      setEditedText(ver.naturalAdaptation);
-    }
+    const applyCampaign = (loaded: Campaign | undefined) => {
+      if (loaded) {
+        setCampaign(loaded);
+        const ver =
+          loaded.versions.find((v) => v.id === loaded.currentVersionId) ||
+          loaded.versions[loaded.versions.length - 1];
+        setCurrentVersion(ver);
+        setEditedText(ver.naturalAdaptation);
+      }
+    };
+    applyCampaign(getCampaignById(campaignId));
+    hydrateCampaignsFromTurso().then(() => {
+      applyCampaign(getCampaignById(campaignId));
+    });
   }, [campaignId]);
 
   const handleRunEngine = async () => {

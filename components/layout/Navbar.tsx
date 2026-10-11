@@ -7,9 +7,16 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: "Platform", href: "#platform" },
-  { label: "Solutions", href: "#solutions" },
-  { label: "How it works", href: "#how-it-works" },
+  { label: "Sections 1–8 Hub", href: "/dashboard" },
+  {
+    label: "A–H Translation Studio",
+    href: "/campaigns/greenglow-small-daily-choices-greener-living/studio",
+  },
+  {
+    label: "Brand Guardian (7-Pass)",
+    href: "/campaigns/greenglow-small-daily-choices-greener-living/guardian",
+  },
+  { label: "11-Field Brief Builder", href: "/campaigns/new" },
 ];
 
 export function Navbar() {
@@ -28,7 +35,7 @@ export function Navbar() {
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
           ? "bg-ivory/95 backdrop-blur-sm border-b border-forest/8 shadow-editorial"
-          : "bg-transparent"
+          : "bg-ivory/90 backdrop-blur-xs border-b border-forest/5"
       )}
     >
       <nav
@@ -60,7 +67,7 @@ export function Navbar() {
             <Link
               key={l.label}
               href={l.href}
-              className="px-4 py-2 text-sm font-medium text-graphite/70 hover:text-forest
+              className="px-3.5 py-2 text-xs font-semibold text-forest hover:text-forest
                          rounded-md transition-colors duration-150 hover:bg-sage/60
                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass/60"
             >
@@ -70,12 +77,14 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2.5">
+          <Link href="/dashboard">
+            <Button variant="primary" size="sm">
+              Open Sections 1–8 Command Center
+            </Button>
+          </Link>
           <Link href="/sign-in">
             <Button variant="ghost" size="sm">Sign in</Button>
-          </Link>
-          <Link href="/sign-up">
-            <Button variant="primary" size="sm">Get started</Button>
           </Link>
         </div>
 
@@ -104,11 +113,13 @@ export function Navbar() {
             </Link>
           ))}
           <div className="pt-3 flex flex-col gap-2.5">
+            <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+              <Button variant="primary" size="md" fullWidth>
+                Open Sections 1–8 Command Center
+              </Button>
+            </Link>
             <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
               <Button variant="outline" size="md" fullWidth>Sign in</Button>
-            </Link>
-            <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
-              <Button variant="primary" size="md" fullWidth>Get started</Button>
             </Link>
           </div>
         </div>

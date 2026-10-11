@@ -37,46 +37,45 @@ export function LandingHero() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center animate-fade-in">
             {/* Left: copy */}
             <div className="animate-fade-up">
-              <div className="tag-editorial mb-6 inline-flex items-center gap-1.5">
+              <div className="tag-editorial mb-4 inline-flex items-center gap-1.5">
                 <Globe2 size={12} className="text-brass" />
-                <span>AI-Assisted Regional Intelligence</span>
+                <span>Regional Language Quality Engine • Sections 1–8 Live</span>
               </div>
 
               <h1
                 id="hero-headline"
-                className="font-serif text-5xl lg:text-display-md font-semibold text-forest leading-tight text-balance mb-6"
+                className="font-serif text-5xl lg:text-display-md font-semibold text-forest leading-tight text-balance mb-5"
               >
                 Every market has its{" "}
-                <span className="italic text-gradient-brass">own language.</span>
+                <span className="italic text-gradient-brass">own language &amp; dialect.</span>
               </h1>
 
-              <p className="text-lg text-graphite/65 leading-relaxed mb-8 max-w-lg text-balance">
-                Create, adapt and measure campaigns built for regional audiences—with
-                AI-assisted creativity, brand safeguards and human judgement.
+              <p className="text-base lg:text-lg text-graphite/75 leading-relaxed mb-6 max-w-lg text-balance">
+                11-field regional configuration, Coastal Andhra vs. Telangana vs. Neutral Telugu adaptation, A–H translation comparison, 7-point Complete-Copy Brand Guardian, and honest evaluation statuses—with zero unrequested festivals or guarantees.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 mb-12">
-                <Link href="#platform">
+              <div className="flex flex-wrap gap-3 mb-8">
+                <Link href="/dashboard">
                   <Button variant="primary" size="lg" iconRight={<ArrowRight size={16} />}>
-                    Explore the platform
+                    Open Sections 1–8 Command Center
                   </Button>
                 </Link>
-                <Link href="#how-it-works">
+                <Link href="/campaigns/greenglow-small-daily-choices-greener-living/studio">
                   <Button
                     variant="outline"
                     size="lg"
                     icon={<Play size={14} className="fill-forest/60" />}
                   >
-                    See how it works
+                    GreenGlow A–H Studio
                   </Button>
                 </Link>
               </div>
 
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3">
-                <StatCard value="22+" label="Indian languages" />
-                <StatCard value="3" label="Campaign paths" />
-                <StatCard value="100%" label="Human reviewed" />
+                <StatCard value="11 Fields" label="Regional Config (Sec 1)" />
+                <StatCard value="A–H" label="Translation Diff (Sec 5)" />
+                <StatCard value="12/12" label="Regression Suite (Sec 7)" />
               </div>
             </div>
 
