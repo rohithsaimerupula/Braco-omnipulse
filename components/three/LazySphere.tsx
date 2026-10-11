@@ -16,9 +16,15 @@ interface LazySphereProps {
   className?: string;
   size?: number;
   interactive?: boolean;
+  onModeChange?: (mode: "globe" | "india_map") => void;
 }
 
-export function LazySphere({ className, size = 480, interactive = true }: LazySphereProps) {
+export function LazySphere({
+  className,
+  size = 480,
+  interactive = true,
+  onModeChange,
+}: LazySphereProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -34,6 +40,11 @@ export function LazySphere({ className, size = 480, interactive = true }: LazySp
   }
 
   return (
-    <RegionalCampaignSphere className={className} size={size} interactive={interactive} />
+    <RegionalCampaignSphere
+      className={className}
+      size={size}
+      interactive={interactive}
+      onModeChange={onModeChange}
+    />
   );
 }

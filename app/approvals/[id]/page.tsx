@@ -1,156 +1,469 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowLeft, Check, CheckCircle2, XCircle, AlertCircle, FileText, User, Hash, Lock, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  FileText,
+  User,
+  Lock,
+  ChevronRight,
+  GitBranch,
+  FlaskConical,
+  ShieldCheck,
+  Edit3,
+} from "lucide-react";
 import Link from "next/link";
+import {
+  getCampaignById,
+  submitReviewerDecision,
+  createNewVersionFromEdit,
+} from "@/lib/campaigns/store";
+import { Campaign, AssetVersion } from "@/lib/campaigns/types";
 
 export default function ReviewCenterPage() {
-  const [isApproved, setIsApproved] = useState(false);
+  const params = useParams();
+  const router = useRouter();
+  const campaignId = (params?.id as string) || "south-india-diwali";
+
+  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [currentVersion, setCurrentVersion] = useState<AssetVersion | null>(null);
+  const [reviewerNote, setReviewerNote] = useState(
+    "Verified regional Telugu idiom and confirmed removal of prohibited ASCI guarantee claim."
+  );
+  const [showPostApprovalEdit, setShowPostApprovalEdit] = useState(false);
+  const [postApprovalText, setPostApprovalText] = useState("");
+
+  useEffect(() => {
+    const loaded = getCampaignById(campaignId);
+    if (loaded) {
+      setCampaign(loaded);
+      const ver =
+        loaded.versions.find((v) => v.id === loaded.currentVersionId) ||
+        loaded.versions[loaded.versions.length - 1];
+      setCurrentVersion(ver);
+      setPostApprovalText(ver.naturalAdaptation);
+    }
+  }, [campaignId]);
+
+  const handleDecision = async (
+    decision: "approved" | "rejected" | "changes_requested"
+  ) => {
+    if (!campaign || !currentVersion) return;
+    const updatedVer = await submitReviewerDecision(
+      campaign.id,
+      currentVersion.id,
+      decision,
+      "Ananya Rao (Regional Compliance Lead)",
+      reviewerNote
+    );
+    const refreshed = getCampaignById(campaign.id);
+    if (refreshed) {
+      setCampaign(refreshed);
+      setCurrentVersion(updatedVer);
+    }
+  };
+
+  // Flowchart 3 Invariant: Editing an Approved version invalidates approval and creates NewVersion -> Verification
+  const handlePostApprovalEdit = async () => {
+    if (!campaign || !currentVersion) return;
+    const newVer = await createNewVersionFromEdit(
+      campaign.id,
+      currentVersion.id,
+      postApprovalText,
+      "Post-approval content modification — previous approval invalidated per State Machine Rule"
+    );
+    const refreshed = getCampaignById(campaign.id);
+    if (refreshed) {
+      setCampaign(refreshed);
+      setCurrentVersion(newVer);
+    }
+    setShowPostApprovalEdit(false);
+  };
+
+  if (!campaign || !currentVersion) {
+    return (
+      <div className="min-h-screen bg-ivory flex items-center justify-center">
+        <p className="text-sm text-forest">Loading Review Center...</p>
+      </div>
+    );
+  }
+
+  const isApproved = currentVersion.state === "Approved";
+  const isRejected = currentVersion.state === "Rejected";
+  const isNeedsChanges = currentVersion.state === "NeedsChanges";
+  const previousVersion =
+    campaign.versions.length > 1
+      ? campaign.versions[campaign.versions.length - 2]
+      : null;
 
   return (
-    <div className="min-h-screen bg-ivory pb-20">
-      <header className="bg-white border-b border-forest/10 px-8 py-4 sticky top-0 z-10 flex items-center justify-between shadow-sm">
+    <div className="min-h-screen bg-ivory pb-24">
+      {/* Header */}
+      <header className="bg-white border-b border-forest/10 px-8 py-4 sticky top-0 z-20 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
-          <Link href="/campaigns/123/guardian" className="w-8 h-8 rounded-full bg-forest/5 flex items-center justify-center text-forest hover:bg-forest/10 transition">
+          <Link
+            href={`/campaigns/${campaign.id}/guardian`}
+            className="w-8 h-8 rounded-full bg-forest/5 flex items-center justify-center text-forest hover:bg-forest/10 transition"
+          >
             <ArrowLeft size={16} />
           </Link>
           <div>
-            <h1 className="font-serif text-lg font-semibold text-forest">Review Center</h1>
-            <p className="text-xs text-neutral-500">Asset: asset-v-003 (Draft v2)</p>
+            <div className="flex items-center gap-2.5">
+              <h1 className="font-serif text-lg font-semibold text-forest">
+                Human Review & Version Approval Gate
+              </h1>
+              <Badge variant={isApproved ? "success" : "demo"}>
+                v{currentVersion.versionNumber} • {currentVersion.state}
+              </Badge>
+            </div>
+            <p className="text-xs text-neutral-500">
+              {campaign.name} — Cryptographic Version Sign-Off
+            </p>
           </div>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm" disabled={isApproved}>Request Revision</Button>
+
+        <div className="flex items-center gap-3">
           {!isApproved ? (
-            <Button variant="primary" size="sm" onClick={() => setIsApproved(true)} iconRight={<Check size={14}/>}>
-              Approve Version
-            </Button>
-          ) : (
-            <Link href="/campaigns/123/passport">
-              <Button variant="primary" size="sm" iconRight={<ChevronRight size={14}/>}>
-                View Decision Passport
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDecision("changes_requested")}
+              >
+                Request Changes
               </Button>
-            </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDecision("rejected")}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                Reject
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => handleDecision("approved")}
+                iconRight={<Check size={14} />}
+              >
+                Approve Exact Version (v{currentVersion.versionNumber})
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href={`/campaigns/${campaign.id}/experiment`}>
+                <Button variant="outline" size="sm" icon={<FlaskConical size={14} />}>
+                  Plan Experiment (A/B)
+                </Button>
+              </Link>
+              <Link href={`/campaigns/${campaign.id}/passport`}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  iconRight={<ChevronRight size={14} />}
+                >
+                  View Campaign Passport
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </header>
 
+      {/* Lifecycle Stepper Banner */}
+      <div className="bg-forest text-ivory px-8 py-2.5 text-xs flex items-center justify-between">
+        <div className="flex items-center gap-6 max-w-6xl mx-auto w-full">
+          <span className="text-ivory/60">1. Brief Locked ✓</span>
+          <span className="text-ivory/30">→</span>
+          <span className="text-ivory/60">2. Dual Adaptation ✓</span>
+          <span className="text-ivory/30">→</span>
+          <span className="text-ivory/60">3. Brand Guardian ✓</span>
+          <span className="text-ivory/30">→</span>
+          <span className="flex items-center gap-1.5 bg-brass/20 text-brass-200 px-2.5 py-0.5 rounded-full font-semibold border border-brass/40">
+            4. Human Approval Gate ({currentVersion.state})
+          </span>
+          <span className="text-ivory/30">→</span>
+          <span className="text-ivory/60">5. Experiment & Passport</span>
+        </div>
+      </div>
+
       <main className="max-w-5xl mx-auto mt-8 px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Column: Asset & Delta */}
+        {/* Left Column: Asset, Version Hash & Delta */}
         <div className="lg:col-span-2 space-y-6">
-          
-          {/* Status Banner */}
+          {/* State Banner */}
           {isApproved && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 animate-fade-in">
-              <CheckCircle2 size={20} className="text-green-600 shrink-0" />
-              <div>
-                <h3 className="text-sm font-bold text-green-800">Version Approved</h3>
-                <p className="text-xs text-green-700 mt-1">This exact hash-verified version has been approved. It is now locked and ready for Creator Briefing or Analytics.</p>
+            <div className="bg-green-50 border-2 border-green-500 rounded-xl p-5 flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 size={22} className="text-green-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-bold text-green-900">
+                    Exact Version Approved & Cryptographically Locked
+                  </h3>
+                  <p className="text-xs text-green-800 mt-1">
+                    SHA-256 Hash{" "}
+                    <code className="bg-green-100 px-1.5 py-0.5 rounded font-mono">
+                      {currentVersion.contentHash.slice(0, 20)}...
+                    </code>{" "}
+                    is now frozen in the Campaign Passport. Any subsequent edit will invalidate this approval and spawn Version{" "}
+                    {currentVersion.versionNumber + 1}.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPostApprovalEdit(!showPostApprovalEdit)}
+                icon={<Edit3 size={13} />}
+              >
+                Edit Copy (Test Invalidation)
+              </Button>
+            </div>
+          )}
+
+          {isNeedsChanges && (
+            <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-bold text-amber-900">
+                    State: NeedsChanges — Revision Requested
+                  </h3>
+                  <p className="text-xs text-amber-800 mt-0.5">
+                    This version requires author edits before it can be approved.
+                  </p>
+                </div>
+              </div>
+              <Link href={`/campaigns/${campaign.id}/studio`}>
+                <Button size="sm" variant="outline">
+                  Return to Studio to Edit
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {isRejected && (
+            <div className="bg-red-50 border border-red-300 rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <XCircle size={20} className="text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-bold text-red-900">
+                    State: Rejected
+                  </h3>
+                  <p className="text-xs text-red-800 mt-0.5">
+                    This version was rejected by the reviewer. Create a new version to resubmit.
+                  </p>
+                </div>
+              </div>
+              <Link href={`/campaigns/${campaign.id}/studio`}>
+                <Button size="sm" variant="outline">
+                  Create New Version
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {/* Post-Approval Edit Box (Demonstrates Flowchart 3 Invariant: Approved -> Edit -> NewVersion -> Verification) */}
+          {showPostApprovalEdit && (
+            <div className="bg-amber-50/90 border-2 border-amber-400 rounded-xl p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                  <AlertTriangle size={14} /> State Machine Invariant Check (Flowchart 3)
+                </span>
+                <span className="text-2xs font-mono text-amber-800">
+                  Approved → Edit → NewVersion (v{campaign.versions.length + 1})
+                </span>
+              </div>
+              <p className="text-xs text-amber-800">
+                Modifying an already-approved version will immediately revoke approval status, generate a new SHA-256 content hash, and require fresh Brand Guardian verification.
+              </p>
+              <textarea
+                rows={3}
+                value={postApprovalText}
+                onChange={(e) => setPostApprovalText(e.target.value)}
+                className="w-full p-3 rounded-lg border border-amber-300 bg-white text-base"
+                style={{ fontFamily: "var(--font-telugu), sans-serif" }}
+              />
+              <div className="flex gap-2">
+                <Button variant="primary" size="sm" onClick={handlePostApprovalEdit}>
+                  Save Edit & Invalidate Approval (Creates v{campaign.versions.length + 1})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPostApprovalEdit(false)}
+                >
+                  Cancel
+                </Button>
               </div>
             </div>
           )}
 
+          {/* Current Version Card */}
           <div className="bg-white rounded-xl border border-forest/10 shadow-sm overflow-hidden">
-            <div className="bg-sage/10 p-4 border-b border-forest/5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-graphite flex items-center gap-2">
-                <FileText size={16} className="text-forest" /> Current Version (v2)
+            <div className="bg-sage/15 p-4 border-b border-forest/10 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-forest flex items-center gap-2">
+                <FileText size={16} /> Candidate Version (v{currentVersion.versionNumber}) — {currentVersion.language}
               </h2>
-              <Badge variant="demo" className="font-mono text-2xs">SHA: a8f9c2...41d</Badge>
+              <span className="font-mono text-2xs bg-white px-2.5 py-1 rounded border border-forest/15 text-forest">
+                SHA-256: {currentVersion.contentHash.slice(0, 16)}...
+              </span>
             </div>
             <div className="p-6">
-              <p className="text-lg text-graphite leading-relaxed" style={{ fontFamily: "var(--font-telugu), sans-serif" }}>
-                ఈ బిజీ లైఫ్‌లో ఆరోగ్యం ముఖ్యమే కదా? రసా ఓట్స్ తినండి, ఫుల్ యాక్టివ్‌గా ఉండండి! ఇది పాలతో తీసుకుంటే మీ <span className="bg-brass/20 text-brass-700 font-medium px-1 rounded">100% రోజువారీ ఐరన్ అవసరాలను</span> ఖచ్చితంగా తీరుస్తుంది.
+              <p
+                className="text-lg text-graphite leading-relaxed"
+                style={{ fontFamily: "var(--font-telugu), sans-serif" }}
+              >
+                {currentVersion.naturalAdaptation}
               </p>
             </div>
           </div>
 
-          {/* Delta Review */}
-          <div className="bg-white rounded-xl border border-forest/10 shadow-sm overflow-hidden">
-            <div className="bg-neutral-50 p-4 border-b border-forest/5">
-              <h2 className="text-sm font-semibold text-graphite">Delta Review (v1 to v2)</h2>
-              <p className="text-xs text-neutral-500 mt-0.5">Showing exact changes from the previous draft.</p>
-            </div>
-            <div className="p-6">
-              <p className="text-lg leading-relaxed" style={{ fontFamily: "var(--font-telugu), sans-serif" }}>
-                <span className="text-neutral-400">ఈ బిజీ లైఫ్‌లో ఆరోగ్యం ముఖ్యమే కదా? రసా ఓట్స్ తినండి, ఫుల్ యాక్టివ్‌గా ఉండండి! ఇది పాలతో తీసుకుంటే మీ 100% రోజువారీ ఐరన్ అవసరాలను ఖచ్చితంగా తీరుస్తుంది. </span>
-                <span className="bg-red-100 text-red-800 line-through px-1 rounded">ఫలితాలు గ్యారెంటీ!</span>
-              </p>
-              <div className="mt-4 pt-4 border-t border-forest/5">
-                <span className="text-xs font-semibold text-forest uppercase tracking-widest">Reviewer Note</span>
-                <p className="text-sm text-neutral-600 italic mt-1">"Removed the guaranteed results claim as requested by the Guardian."</p>
+          {/* Delta Review (v1 -> v2) */}
+          {previousVersion && (
+            <div className="bg-white rounded-xl border border-forest/10 shadow-sm overflow-hidden">
+              <div className="bg-neutral-50 p-4 border-b border-forest/10 flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-graphite flex items-center gap-2">
+                    <GitBranch size={15} className="text-forest" />
+                    Version Delta Review ({previousVersion.id} → {currentVersion.id})
+                  </h2>
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    Comparing previous draft against current compliant revision.
+                  </p>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="p-3.5 rounded-lg bg-red-50/60 border border-red-200 text-xs">
+                  <span className="font-bold text-red-800 block mb-1">
+                    Previous ({previousVersion.id} — {previousVersion.state}):
+                  </span>
+                  <p
+                    className="text-sm text-neutral-700 line-through"
+                    style={{ fontFamily: "var(--font-telugu), sans-serif" }}
+                  >
+                    {previousVersion.naturalAdaptation}
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-lg bg-green-50/60 border border-green-200 text-xs">
+                  <span className="font-bold text-green-800 block mb-1">
+                    Current ({currentVersion.id} — {currentVersion.state}):
+                  </span>
+                  <p
+                    className="text-sm text-graphite font-medium"
+                    style={{ fontFamily: "var(--font-telugu), sans-serif" }}
+                  >
+                    {currentVersion.naturalAdaptation}
+                  </p>
+                </div>
+
+                {currentVersion.changeNote && (
+                  <div className="pt-2 border-t border-forest/10 text-xs text-neutral-600">
+                    <strong className="text-forest">Revision Note:</strong> {currentVersion.changeNote}
+                  </div>
+                )}
               </div>
             </div>
+          )}
+
+          {/* Reviewer Sign-off Note Input */}
+          <div className="bg-white rounded-xl border border-forest/10 p-5 shadow-sm">
+            <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-2">
+              Reviewer Audit Note (Recorded in Passport)
+            </label>
+            <textarea
+              rows={2}
+              value={reviewerNote}
+              onChange={(e) => setReviewerNote(e.target.value)}
+              disabled={isApproved}
+              className="w-full p-3 rounded-lg border border-forest/20 text-xs text-graphite focus:outline-none focus:ring-1 focus:ring-forest"
+            />
           </div>
         </div>
 
-        {/* Right Column: Server Gates & Audit */}
+        {/* Right Column: Server Gates & State Machine History */}
         <div className="space-y-6">
           <div className="bg-white rounded-xl border border-forest/10 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-graphite mb-4 flex items-center gap-2">
-              <Lock size={16} className="text-forest" /> Approval Gates
+            <h3 className="text-sm font-bold text-forest mb-4 flex items-center gap-2">
+              <Lock size={16} /> Server-Enforced Approval Gates
             </h3>
-            
-            <ul className="space-y-3">
+
+            <ul className="space-y-3.5 text-xs">
               <li className="flex items-start gap-2.5">
-                <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
+                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-graphite">Hash match verified</p>
-                  <p className="text-2xs text-neutral-500">You are viewing the exact current version.</p>
+                  <p className="font-semibold text-graphite">Exact SHA-256 Hash Match</p>
+                  <p className="text-neutral-500">
+                    Content matches verified Guardian output hash.
+                  </p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
+                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-graphite">Zero Critical/High findings</p>
-                  <p className="text-2xs text-neutral-500">Guardian checks passed on this version.</p>
+                  <p className="font-semibold text-graphite">Zero Critical Findings</p>
+                  <p className="text-neutral-500">
+                    All 4-Way Claim Verification checks passed.
+                  </p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
+                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-graphite">Separation of Duties</p>
-                  <p className="text-2xs text-neutral-500">Author (Demo) ≠ Approver (Admin).</p>
+                  <p className="font-semibold text-graphite">Locked Claim Atoms Intact</p>
+                  <p className="text-neutral-500">
+                    100% daily iron &amp; warm milk tokens verified.
+                  </p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
-                <AlertCircle size={16} className="text-brass shrink-0 mt-0.5" />
+                <ShieldCheck size={16} className="text-forest shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-graphite">Language Competency Override</p>
-                  <p className="text-2xs text-neutral-500">You lack the 'Telugu' tag. Approval requires an override note.</p>
+                  <p className="font-semibold text-graphite">Meaning Preservation: {currentVersion.meaningPreservationScore}%</p>
+                  <p className="text-neutral-500">
+                    Exceeds 90% semantic fidelity threshold.
+                  </p>
                 </div>
               </li>
             </ul>
-
-            {!isApproved && (
-              <div className="mt-5 pt-4 border-t border-forest/5">
-                <label className="block text-xs font-medium text-graphite mb-1.5">Override Reason (Required)</label>
-                <textarea 
-                  rows={2} 
-                  defaultValue="Discussed with regional team lead. Approved via Slack." 
-                  className="w-full text-xs p-2 rounded-md border border-forest/15 focus:outline-none focus:ring-1 focus:ring-forest"
-                />
-              </div>
-            )}
           </div>
 
-          {/* Audit Chain preview */}
-          {isApproved && (
-            <div className="bg-sage/10 rounded-xl border border-sage-300 p-5 shadow-sm animate-fade-in">
-              <h3 className="text-sm font-semibold text-forest mb-3 flex items-center gap-2">
-                <Hash size={16} /> Audit Chain Updated
-              </h3>
-              <p className="text-xs text-neutral-600 mb-2">
-                Approval event appended to ledger. Previous hash securely linked.
-              </p>
-              <div className="bg-white border border-forest/10 rounded p-2 text-2xs font-mono text-neutral-500 break-all">
-                prev: a8f9c21b29... <br/>
-                curr: f73bd8a209...
-              </div>
+          {/* Version History List */}
+          <div className="bg-white rounded-xl border border-forest/10 p-5 shadow-sm">
+            <h3 className="text-sm font-bold text-forest mb-3 flex items-center gap-2">
+              <GitBranch size={16} /> Version Lifecycle History
+            </h3>
+            <div className="space-y-2.5">
+              {campaign.versions.map((ver) => (
+                <div
+                  key={ver.id}
+                  className={`p-3 rounded-lg border text-xs flex items-center justify-between ${
+                    ver.id === currentVersion.id
+                      ? "bg-forest/5 border-forest font-semibold"
+                      : "bg-neutral-50 border-neutral-200 text-neutral-500"
+                  }`}
+                >
+                  <div>
+                    <span className="text-forest font-bold">{ver.id}</span> •{" "}
+                    <span>{ver.state}</span>
+                    <p className="text-2xs font-mono text-neutral-400">
+                      {ver.contentHash.slice(0, 12)}...
+                    </p>
+                  </div>
+                  <Badge variant={ver.state === "Approved" ? "success" : "demo"}>
+                    {ver.state}
+                  </Badge>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </main>
     </div>

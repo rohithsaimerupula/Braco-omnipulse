@@ -105,107 +105,14 @@ function WorkflowStep({
   );
 }
 
-import React from "react";
-import { LazySphere } from "@/components/three/LazySphere";
+import { LandingHero } from "@/components/landing/LandingHero";
 
 /* ── LANDING PAGE ────────────────────────────────── */
 export default function LandingPage() {
   return (
     <main>
       {/* ── HERO ────────────────────────────────────── */}
-      <section
-        id="hero"
-        className="relative min-h-screen flex items-center overflow-hidden bg-ivory"
-        aria-labelledby="hero-headline"
-      >
-        {/* Subtle background texture */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-gradient-to-bl from-sage/30 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-brass/5 via-transparent to-transparent" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-28 pb-20 grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left: copy */}
-          <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            <div className="tag-editorial mb-6">
-              <Globe2 size={11} />
-              AI-Assisted Regional Intelligence
-            </div>
-
-            <h1
-              id="hero-headline"
-              className="font-serif text-5xl lg:text-display-md font-semibold text-forest leading-tight text-balance mb-6"
-            >
-              Every market has its{" "}
-              <span className="italic text-gradient-brass">own language.</span>
-            </h1>
-
-            <p className="text-lg text-graphite/65 leading-relaxed mb-8 max-w-lg text-balance">
-              Create, adapt and measure campaigns built for regional audiences—with
-              AI-assisted creativity, brand safeguards and human judgement.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 mb-12">
-              <Link href="#platform">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  iconRight={<ArrowRight size={16} />}
-                >
-                  Explore the platform
-                </Button>
-              </Link>
-              <Link href="#how-it-works">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  icon={<Play size={14} className="fill-forest/60" />}
-                >
-                  See how it works
-                </Button>
-              </Link>
-            </div>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3">
-              <StatCard value="22+" label="Indian languages" />
-              <StatCard value="3" label="Campaign paths" />
-              <StatCard value="100%" label="Human reviewed" />
-            </div>
-          </div>
-
-          {/* Right: 3D Sphere */}
-          <div
-            className="relative flex items-center justify-center animate-fade-in"
-            style={{ animationDelay: "0.3s" }}
-            aria-hidden="true"
-          >
-            {/* Halo ring */}
-            <div className="absolute w-[420px] h-[420px] rounded-full border border-brass/15 animate-spin-slow" />
-            <div className="absolute w-[360px] h-[360px] rounded-full border border-forest/8" />
-            <LazySphere size={440} interactive className="w-[440px] h-[440px] max-w-full" />
-
-            {/* Floating label chips */}
-            <div className="absolute top-8 left-4 bg-white rounded-lg px-3 py-2 shadow-editorial border border-forest/8 flex items-center gap-2 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-forest font-medium">తెలుగు campaign live</span>
-            </div>
-            <div className="absolute bottom-8 right-4 bg-white rounded-lg px-3 py-2 shadow-editorial border border-forest/8 flex items-center gap-2 text-xs">
-              <ShieldCheck size={12} className="text-brass" />
-              <span className="text-forest font-medium">Brand safety: Passed</span>
-            </div>
-            <div className="absolute top-1/2 right-0 bg-forest text-ivory rounded-lg px-3 py-2 shadow-editorial text-xs font-medium">
-              Tamil variant ready
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-          <span className="text-2xs uppercase tracking-widest text-graphite">Scroll</span>
-          <div className="w-px h-10 bg-gradient-to-b from-graphite/30 to-transparent" />
-        </div>
-      </section>
+      <LandingHero />
 
       {/* Divider */}
       <div className="divider-editorial mx-8 lg:mx-24" />

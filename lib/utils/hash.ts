@@ -11,6 +11,8 @@ export async function generateSHA256(data: string): Promise<string> {
   return hashHex;
 }
 
+export const sha256Hex = generateSHA256;
+
 /**
  * Normalizes text for hashing (NFC normalization as requested in the prompt).
  */
