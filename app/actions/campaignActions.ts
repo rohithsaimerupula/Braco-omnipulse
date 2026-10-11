@@ -145,7 +145,8 @@ export async function ensureDomainTables() {
 }
 
 /**
- * Real-time neural translation helper using public translation endpoint with fallback
+ * Real-time neural translation helper using MyMemory Translation API (no API key required)
+ * with secondary fallback.
  */
 export async function translateTextRealTime(
   text: string,
@@ -154,6 +155,29 @@ export async function translateTextRealTime(
   const tl = LANGUAGE_ISO_MAP[targetLangName] || "te";
   if (tl === "en") return text;
 
+  // 1. Primary: MyMemory Neural Translation API (Free, reliable, zero key required)
+  try {
+    const mmUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+      text.slice(0, 480)
+    )}&langpair=en|${encodeURIComponent(tl)}`;
+    const mmRes = await fetch(mmUrl, { cache: "no-store" });
+    if (mmRes.ok) {
+      const mmData = await mmRes.json();
+      const translated = mmData?.responseData?.translatedText;
+      if (
+        translated &&
+        typeof translated === "string" &&
+        !translated.includes("MYMEMORY WARNING") &&
+        translated.trim().length > 0
+      ) {
+        return translated.trim();
+      }
+    }
+  } catch (err) {
+    console.warn("MyMemory translation fallback:", err);
+  }
+
+  // 2. Secondary fallback: Google GTX endpoint
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(
       tl
@@ -171,8 +195,8 @@ export async function translateTextRealTime(
         }
       }
     }
-  } catch (err) {
-    console.warn("Real-time translation fallback triggered:", err);
+  } catch {
+    // ignore
   }
 
   return text;
