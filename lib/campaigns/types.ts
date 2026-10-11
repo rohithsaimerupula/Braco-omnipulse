@@ -1,5 +1,5 @@
 // Master Types for Braco OmniPulse Campaign Engine
-// Strictly aligned with Master Flowchart, Lifecycle State Machine & Guardian Engine
+// Aligned with Master Flowchart, Lifecycle State Machine, Regional Language Quality Fix & Guardian Engine
 
 export type VersionLifecycleState =
   | "Draft"
@@ -11,18 +11,45 @@ export type VersionLifecycleState =
   | "Approved"
   | "Rejected";
 
+export type HonestEvaluationStatus =
+  | "Meaning check passed"
+  | "Meaning check needs review"
+  | "Unsupported claim detected"
+  | "Dialect not verified"
+  | "Human review required";
+
 export interface ClaimAtom {
   id: string;
   canonicalText: string;
   lockedTokens: string[];
+  requiredQualifications?: string[];
   sourceTitle: string;
   sourceUrl?: string;
-  evidenceStatus: "supported" | "unsupported" | "contradicted" | "evidence_missing";
+  evidenceStatus:
+    | "supported"
+    | "unsupported"
+    | "contradicted"
+    | "evidence_missing";
 }
 
 export interface GuardianFinding {
   id: string;
-  classification: "supported" | "unsupported" | "contradicted" | "evidence_missing";
+  classification:
+    | "supported"
+    | "unsupported"
+    | "contradicted"
+    | "evidence_missing";
+  category?:
+    | "unsupported_guarantee"
+    | "new_factual_claim"
+    | "changed_or_exaggerated_claim"
+    | "missing_qualification"
+    | "unsupported_health_or_env"
+    | "brief_contradiction"
+    | "unrequested_cultural_ref"
+    | "excessive_english_mixing"
+    | "brand_name_mismatch"
+    | "verified_claim";
   textSpan: string;
   explanation: string;
   evidenceGap?: string;
@@ -42,17 +69,44 @@ export interface ApprovalRecord {
   timestamp: string;
 }
 
+export interface ClaimDiffEntry {
+  type:
+    | "preserved"
+    | "added_unsupported"
+    | "removed"
+    | "missing_qualification"
+    | "exaggerated";
+  text: string;
+  note: string;
+}
+
+export interface ReviewerCorrectionEntry {
+  timestamp: string;
+  reviewer: string;
+  beforeText: string;
+  afterText: string;
+  note: string;
+}
+
 export interface AssetVersion {
   id: string;
   versionNumber: number; // 1, 2, 3...
   state: VersionLifecycleState;
-  sourceText: string;
-  literalTranslation: string;
-  naturalAdaptation: string;
+  sourceText: string; // A. Original source copy
+  literalTranslation: string; // B. Literal translation
+  naturalAdaptation: string; // C. Natural regional adaptation
+  backTranslation?: string; // D. English back-translation for reviewer assistance (diagnostic aid)
+  meaningPreservationFindings?: string[]; // E. Meaning-preservation findings
+  claimDiffs?: ClaimDiffEntry[]; // F. Added or removed claims
+  languageDialectWarnings?: string[]; // G. Language and dialect warnings
+  reviewerCorrections?: ReviewerCorrectionEntry[]; // H. Human reviewer corrections
+  honestStatus?: HonestEvaluationStatus; // Section 6: Explicit honest evaluation status
+  evaluationMethodNote?: string; // Documented evaluation method & limitations
   language: string;
   region: string;
+  dialect?: string;
   contentHash: string; // SHA-256
-  meaningPreservationScore: number; // 0 - 100%
+  meaningPreservationScore: number; // Documented token/qualification overlap score (not arbitrary)
   adaptationRationale: Array<{
     change: string;
     reason: string;
@@ -69,17 +123,21 @@ export interface AssetVersion {
 export interface CampaignBrief {
   id: string;
   name: string;
+  brandName?: string;
   objective: string;
   audience: string;
-  sourceLanguage: string;
-  targetLanguage: string;
-  region: string;
-  dialect?: string;
-  tone: string;
-  slangFormality: string;
-  culturalContext: string;
-  channel: string;
-  format: string;
+  audienceAgeGroup?: string; // Separate field per Requirement 1
+  sourceLanguage: string; // Separate field per Requirement 1
+  targetLanguage: string; // Separate field per Requirement 1
+  region: string; // Target state or region per Requirement 1
+  dialect?: string; // Optional dialect — never inferred from language alone
+  tone: string; // Separate field per Requirement 1
+  formality?: string; // Separate field per Requirement 1
+  slangIntensity?: "none" | "light" | "moderate" | string; // Separate field per Requirement 1
+  slangFormality: string; // Combined display summary
+  culturalContext: string; // Explicitly supplied; if empty, no festival is added
+  channel: string; // Marketing channel per Requirement 1
+  format: string; // Asset format per Requirement 1
   claimAtoms: ClaimAtom[];
 }
 

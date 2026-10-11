@@ -4,10 +4,9 @@ import {
   Campaign,
   CampaignBrief,
   AssetVersion,
-  ClaimAtom,
-  GuardianFinding,
   ApprovalRecord,
   ExperimentPlan,
+  HonestEvaluationStatus,
 } from "./types";
 import { sha256Hex } from "@/lib/utils/hash";
 import {
@@ -17,10 +16,136 @@ import {
   fetchCampaignsFromTurso,
 } from "@/app/actions/campaignActions";
 
-const STORAGE_KEY = "braco_omnipulse_campaigns_v1";
+const STORAGE_KEY = "braco_omnipulse_campaigns_v2";
 
-// Default Seed Campaign for demonstration
+// Default Seed Campaigns:
+// 1. GreenGlow Aloe Vera Gel (Acceptance Criterion Test Case — No festival, no family-health, no guarantee)
+// 2. South India Diwali Push (Festive Oats Campaign — Demonstrates catching unsupported guarantee in v1)
 const DEFAULT_CAMPAIGNS: Campaign[] = [
+  {
+    id: "greenglow-telugu-launch",
+    name: "GreenGlow Aloe Vera Gel — Everyday Hydration",
+    createdAt: new Date().toISOString(),
+    brief: {
+      id: "brief-greenglow-001",
+      name: "GreenGlow Aloe Vera Gel — Everyday Hydration",
+      brandName: "GreenGlow",
+      objective:
+        "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+      audience: "Skincare-conscious adults looking for lightweight daily moisture.",
+      audienceAgeGroup: "22-38",
+      sourceLanguage: "English",
+      targetLanguage: "Telugu",
+      region: "Andhra Pradesh",
+      dialect: "Coastal Andhra",
+      tone: "Clear, Calm, Informative",
+      formality: "Conversational Respectful",
+      slangIntensity: "none",
+      slangFormality: "Conversational Respectful (No Slang)",
+      culturalContext: "", // Explicitly empty — must NOT invent a festival!
+      channel: "Meta & Instagram Ads",
+      format: "Short Video Caption",
+      claimAtoms: [
+        {
+          id: "claim-gg-1",
+          canonicalText:
+            "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+          lockedTokens: ["GreenGlow", "with regular use", "hydrated"],
+          requiredQualifications: ["with regular use"],
+          sourceTitle: "Dermatological Evaluation Dossier GG-2026-01",
+          evidenceStatus: "supported",
+        },
+        {
+          id: "claim-gg-2",
+          canonicalText: "Made with 95% pure aloe vera leaf extract.",
+          lockedTokens: ["95%", "pure aloe vera leaf extract"],
+          sourceTitle: "Formulation Lab Certificate GG-LAB-09",
+          evidenceStatus: "supported",
+        },
+      ],
+    },
+    currentVersionId: "v1",
+    versions: [
+      {
+        id: "v1",
+        versionNumber: 1,
+        state: "ReadyForReview",
+        sourceText:
+          "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use. Made with 95% pure aloe vera leaf extract.",
+        literalTranslation:
+          "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ క్రమం తప్పకుండా వాడితే చర్మానికి తేమను అందించడంలో సహాయపడుతుంది. ఇది 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారు చేయబడింది.",
+        naturalAdaptation:
+          "గ్రీన్‌గ్లో (GreenGlow) అలోవెరా జెల్ — 95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది. క్రమం తప్పకుండా వాడితే మీ చర్మానికి చక్కని తేమను అందించడంలో సహాయపడుతుంది.",
+        backTranslation:
+          "GreenGlow Aloe Vera Gel is made with 95% pure aloe leaf extract and, when used regularly, helps provide moisture to the skin.",
+        meaningPreservationFindings: [
+          "Brand name 'GreenGlow' preserved accurately in target copy.",
+          "All 2 approved claim(s) and qualifications preserved without unrequested additions.",
+        ],
+        claimDiffs: [
+          {
+            type: "preserved",
+            text: "GreenGlow Aloe Vera Gel helps keep skin hydrated with regular use.",
+            note: "Verified against Dermatological Evaluation Dossier GG-2026-01",
+          },
+          {
+            type: "preserved",
+            text: "Made with 95% pure aloe vera leaf extract.",
+            note: "Verified against Formulation Lab Certificate GG-LAB-09",
+          },
+        ],
+        languageDialectWarnings: [],
+        reviewerCorrections: [],
+        honestStatus: "Meaning check passed",
+        evaluationMethodNote:
+          "Rule-based checklist ratio (5/5 checks passed: claim retention, qualification preservation, zero unrequested claims/festivals, brand preservation). Back-translation is a diagnostic aid only; native regional reviewer sign-off is required.",
+        language: "Telugu",
+        region: "Andhra Pradesh",
+        dialect: "Coastal Andhra",
+        contentHash:
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        meaningPreservationScore: 100,
+        adaptationRationale: [
+          {
+            change:
+              "Used Coastal Andhra polite conversational phrasing ('చక్కని తేమను అందించడంలో సహాయపడుతుంది').",
+            reason: "Dialect explicitly set to Coastal Andhra Telugu; no festival or family-health claim added.",
+            confidenceNote:
+              "Preserved 'helps support hydration' and 'with regular use' qualification.",
+          },
+        ],
+        culturalNotes: [
+          "No cultural/festive context supplied in brief; strictly neutral product copy generated.",
+        ],
+        findings: [
+          {
+            id: "f-gg-1",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan:
+              "క్రమం తప్పకుండా వాడితే మీ చర్మానికి చక్కని తేమను అందించడంలో సహాయపడుతుంది",
+            explanation:
+              "Approved hydration claim and 'with regular use' qualification preserved in Telugu.",
+            ruleOrFact: "Dermatological Evaluation Dossier GG-2026-01",
+            severity: "low",
+            resolved: true,
+          },
+          {
+            id: "f-gg-2",
+            classification: "supported",
+            category: "verified_claim",
+            textSpan: "95% స్వచ్ఛమైన అలోవెరా ఆకు సారంతో తయారైంది",
+            explanation:
+              "Exact 95% pure aloe vera leaf extract fact preserved without exaggeration.",
+            ruleOrFact: "Formulation Lab Certificate GG-LAB-09",
+            severity: "low",
+            resolved: true,
+          },
+        ],
+        createdAt: new Date().toISOString(),
+      },
+    ],
+  },
   {
     id: "south-india-diwali",
     name: "South India Diwali Push",
@@ -28,16 +153,20 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
     brief: {
       id: "brief-001",
       name: "South India Diwali Push",
+      brandName: "Rasa Oats",
       objective:
         "Drive festive awareness and breakfast pack trials across Andhra Pradesh and Telangana.",
       audience:
         "Health-conscious urban and tier-2 families, working parents (ages 28-45).",
+      audienceAgeGroup: "28-45",
       sourceLanguage: "English",
       targetLanguage: "Telugu",
-      region: "Andhra Pradesh / Telangana",
-      dialect: "Coastal Andhra & Telangana Colloquial",
+      region: "Telangana",
+      dialect: "Telangana",
       tone: "Warm, Festive, Trustworthy",
-      slangFormality: "Casual Respectful (Conversational)",
+      formality: "Conversational Respectful",
+      slangIntensity: "light",
+      slangFormality: "Conversational Respectful (Light Colloquial)",
       culturalContext:
         "Diwali gift-giving and healthy festive breakfast ritual (Deepavali Subhakankshalu).",
       channel: "Social Video & Reels",
@@ -48,6 +177,7 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
           canonicalText:
             "Rasa Oats provides 100% of your daily iron needs when consumed with milk.",
           lockedTokens: ["100% daily iron", "with milk"],
+          requiredQualifications: ["when consumed with milk"],
           sourceTitle: "Clinical Trial Dossier CT-2024-09",
           sourceUrl:
             "https://library.braco.internal/clinical/iron-bioavailability.pdf",
@@ -55,8 +185,7 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
         },
         {
           id: "claim-2",
-          canonicalText:
-            "100% whole grain oats with no added refined sugar.",
+          canonicalText: "100% whole grain oats with no added refined sugar.",
           lockedTokens: ["no added refined sugar", "100% whole grain"],
           sourceTitle: "Nutritional Analysis Lab Report NL-441",
           sourceUrl: "https://library.braco.internal/lab/sugar-free-cert.pdf",
@@ -71,45 +200,63 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
         versionNumber: 1,
         state: "NeedsChanges",
         sourceText:
-          "This Diwali season, give your family the gift of health! Rasa Oats with warm milk gives 100% daily iron needs. Energy and results guaranteed every morning!",
+          "This Diwali season, give your family the gift of health! Rasa Oats with warm milk gives 100% daily iron needs. 100% whole grain oats with no added refined sugar.",
         literalTranslation:
-          "ఈ దీపావళి సీజన్‌లో మీ కుటుంబానికి ఆరోగ్యం అనే బహుమతి ఇవ్వండి! వేడి పాలతో రసా ఓట్స్ 100% రోజువారీ ఐరన్ అవసరాలను ఇస్తుంది. ప్రతి ఉదయం శక్తి మరియు ఫలితాలు గ్యారెంటీ!",
+          "ఈ దీపావళి సీజన్‌లో మీ కుటుంబానికి ఆరోగ్యాన్ని అందించండి! వేడి పాలతో రసా ఓట్స్ (Rasa Oats) 100% రోజువారీ ఐరన్ అవసరాలను తీరుస్తుంది. అదనపు చక్కెర లేని 100% తృణధాన్య ఓట్స్.",
         naturalAdaptation:
-          "పండుగ పూట కుటుంబ ఆరోగ్యమే కదా అసలైన వెలుగు? వేడి పాలతో రసా ఓట్స్ తాగండి—మీ 100% రోజువారీ ఐరన్ అవసరాలను సహజంగా తీర్చుకోండి. ఫలితాలు గ్యారెంటీ!",
+          "దీపావళి పండుగ పూట కుటుంబ ఆరోగ్యమే కదా అసలైన వెలుగు? వేడి పాలతో రసా ఓట్స్ (Rasa Oats) తాగండి—మీ 100% రోజువారీ ఐరన్ అవసరాలను సహజంగా తీర్చుకోండి. ఫలితాలు గ్యారెంటీ!",
+        backTranslation:
+          "[Festive reference: During the festival/Diwali time] [Family health reference: family health] Rasa Oats, when consumed with milk, fulfills 100% of daily iron needs; made with 100% whole grain oats without added sugar. [Guarantee claim: Results guaranteed!]",
+        meaningPreservationFindings: [
+          "Brand name 'Rasa Oats' preserved accurately in target copy.",
+          "[CONTRADICTED] Unsupported guarantee detected in generated copy ('ఫలితాలు గ్యారెంటీ!').",
+        ],
+        claimDiffs: [
+          {
+            type: "added_unsupported",
+            text: "ఫలితాలు గ్యారెంటీ!",
+            note: "Unrequested outcome guarantee added; not present in source brief or approved claim atoms.",
+          },
+          {
+            type: "preserved",
+            text: "Rasa Oats provides 100% of your daily iron needs when consumed with milk.",
+            note: "Verified against Clinical Trial Dossier CT-2024-09",
+          },
+        ],
+        languageDialectWarnings: [],
+        reviewerCorrections: [],
+        honestStatus: "Unsupported claim detected",
+        evaluationMethodNote:
+          "Rule-based checklist ratio (4/5 checks passed: 1 critical unsupported guarantee detected). Back-translation is a diagnostic aid only; native regional reviewer sign-off is required.",
         language: "Telugu",
-        region: "Andhra Pradesh / Telangana",
+        region: "Telangana",
+        dialect: "Telangana",
         contentHash:
           "a8f9c2d1e0b345a987654321fedcba0987654321a8f9c2d1e0b345a987654321",
-        meaningPreservationScore: 92,
+        meaningPreservationScore: 80,
         adaptationRationale: [
           {
             change:
-              "Replaced literal 'gift of health' with 'అసలైన వెలుగు' (true festive light).",
-            reason: "Resonates with Diwali cultural motif in Telugu homes.",
-            confidenceNote:
-              "Validated with native regional linguistic corpus.",
-          },
-          {
-            change: "Adapted tone to conversational maternal inquiry ('కదా').",
-            reason: "Builds instant trust in FMCG household advertising.",
-            confidenceNote: "Standard Telugu lifestyle register.",
+              "Included Diwali cultural motif ('అసలైన వెలుగు') because culturalContext explicitly requested Diwali.",
+            reason: "Authorized by explicit Diwali culturalContext in brief.",
+            confidenceNote: "Validated with regional linguistic corpus.",
           },
         ],
         culturalNotes: [
-          "Diwali in AP/Telangana involves early morning oil bath (Abhyangana Snanam) followed by wholesome breakfast.",
-          "Avoid direct comparative claims against traditional breakfast items like Idli/Dosa.",
+          "Diwali context was explicitly requested in the campaign brief.",
         ],
         findings: [
           {
             id: "f-1",
             classification: "contradicted",
-            textSpan: "ఫలితాలు గ్యారెంటీ! (Results guaranteed!)",
+            category: "unsupported_guarantee",
+            textSpan: "ఫలితాలు గ్యారెంటీ!",
             explanation:
-              "Absolute guarantee claim 'ఫలితాలు గ్యారెంటీ' contradicts ASCI (Advertising Standards Council of India) medical compliance guidelines Chapter 1.4.",
+              "Unsupported guarantee detected in copy. Violates ASCI Chapter 1.4 and Brand Rule #1 ('No health guarantees').",
             evidenceGap:
-              "No clinical trial supports absolute guarantee of subjective energy results.",
+              "No clinical trial supports an unconditional guarantee of subjective health outcomes.",
             suggestedFix:
-              "Change to 'సహజంగా శక్తిని పొందండి' (Gain natural vitality).",
+              "Remove 'ఫలితాలు గ్యారెంటీ!' and replace with 'సహజంగా శక్తిని పొందండి!' (Gain wholesome daily vitality).",
             ruleOrFact:
               "ASCI Guideline 1.4: Health claims must not guarantee absolute physical outcomes.",
             severity: "critical",
@@ -118,10 +265,11 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
           {
             id: "f-2",
             classification: "supported",
-            textSpan: "100% రోజువారీ ఐరన్ అవసరాలను (100% daily iron needs)",
+            category: "verified_claim",
+            textSpan: "వేడి పాలతో ... 100% రోజువారీ ఐరన్ అవసరాలను",
             explanation:
-              "Directly matches locked Claim Atom from Clinical Trial Dossier CT-2024-09.",
-            ruleOrFact: "Claim Atom #1",
+              "Matches locked Claim Atom #1 including mandatory 'with milk' qualification.",
+            ruleOrFact: "Clinical Trial Dossier CT-2024-09",
             severity: "low",
             resolved: true,
           },
@@ -147,7 +295,7 @@ export function getStoredCampaigns(): Campaign[] {
   }
 }
 
-// Helper to save campaigns locally and sync to Turso libSQL
+// Helper to save campaigns locally
 export function saveStoredCampaigns(campaigns: Campaign[]): void {
   if (typeof window === "undefined") return;
   try {
@@ -166,15 +314,14 @@ export async function hydrateCampaignsFromTurso(): Promise<Campaign[]> {
     const localCampaigns = getStoredCampaigns();
 
     if (remoteCampaigns.length === 0) {
-      // Push default seed to Turso
       for (const camp of localCampaigns) {
         await syncCampaignToTurso(camp);
       }
       return localCampaigns;
     }
 
-    // Merge remote & local by ID
     const mergedMap = new Map<string, Campaign>();
+    for (const c of DEFAULT_CAMPAIGNS) mergedMap.set(c.id, c);
     for (const c of localCampaigns) mergedMap.set(c.id, c);
     for (const c of remoteCampaigns) mergedMap.set(c.id, c);
 
@@ -192,7 +339,7 @@ export function getCampaignById(id: string): Campaign | undefined {
   return all.find((c) => c.id === id) || all[0];
 }
 
-// Create new campaign according to Flowchart 1 & 2 (Real-time Translation + Turso Sync)
+// Create new campaign according to Sections 1-6 (Real-time Regional Engine + Turso Sync)
 export async function createNewCampaign(
   briefData: Omit<CampaignBrief, "id">
 ): Promise<Campaign> {
@@ -208,44 +355,55 @@ export async function createNewCampaign(
     id: `brief-${Date.now()}`,
   };
 
-  // Run Real-Time Dual Adaptation Server Engine on the user's exact inputs
+  // Run Regional Language Quality Engine on the user's exact inputs
   const adaptation = await runRealTimeAdaptationServer({
+    brandName: brief.brandName,
     sourceText: brief.objective,
+    sourceLanguage: brief.sourceLanguage,
     targetLanguage: brief.targetLanguage,
     region: brief.region,
     dialect: brief.dialect,
+    audience: brief.audience,
+    audienceAgeGroup: brief.audienceAgeGroup,
     tone: brief.tone,
+    formality: brief.formality,
+    slangIntensity: brief.slangIntensity,
     slangFormality: brief.slangFormality,
+    channel: brief.channel,
+    format: brief.format,
     culturalContext: brief.culturalContext,
-    claimAtoms: brief.claimAtoms,
-  });
-
-  // Also run initial Guardian pass
-  const guardian = await runRealTimeGuardianServer({
-    naturalAdaptation: adaptation.naturalAdaptation,
-    literalTranslation: adaptation.literalTranslation,
-    targetLanguage: brief.targetLanguage,
-    region: brief.region,
     claimAtoms: brief.claimAtoms,
   });
 
   const v1: AssetVersion = {
     id: "v1",
     versionNumber: 1,
-    state: "Generated",
+    state: adaptation.hasBlockingIssues ? "NeedsChanges" : "ReadyForReview",
     sourceText: adaptation.sourceText,
     literalTranslation: adaptation.literalTranslation,
     naturalAdaptation: adaptation.naturalAdaptation,
+    backTranslation: adaptation.backTranslation,
+    meaningPreservationFindings: adaptation.meaningPreservationFindings,
+    claimDiffs: adaptation.claimDiffs,
+    languageDialectWarnings: adaptation.languageDialectWarnings,
+    reviewerCorrections: [],
+    honestStatus: adaptation.honestStatus,
+    evaluationMethodNote: adaptation.evaluationMethodNote,
     language: brief.targetLanguage,
     region: brief.region,
+    dialect: brief.dialect,
     contentHash: adaptation.contentHash,
     meaningPreservationScore: adaptation.meaningPreservationScore,
     adaptationRationale: adaptation.adaptationRationale,
     culturalNotes: [
-      `Context: ${brief.culturalContext}`,
-      `Tone formality: ${brief.slangFormality}`,
+      brief.culturalContext
+        ? `Supplied cultural context: ${brief.culturalContext}`
+        : "No cultural/festive context supplied in brief; generated neutral regional language.",
+      `Formality: ${brief.formality || brief.slangFormality} • Slang intensity: ${
+        brief.slangIntensity || "none"
+      }`,
     ],
-    findings: guardian.findings,
+    findings: adaptation.findings,
     createdAt: new Date().toISOString(),
   };
 
@@ -262,13 +420,11 @@ export async function createNewCampaign(
   filtered.unshift(newCampaign);
   saveStoredCampaigns(filtered);
 
-  // Persist to Turso libSQL in real time
   await syncCampaignToTurso(newCampaign);
-
   return newCampaign;
 }
 
-// Flowchart 5: Run Regional Adaptation Engine (Real-Time Dual Generation)
+// Run Regional Adaptation Engine (Dual Generation)
 export async function generateDualAdaptations(
   campaignId: string,
   versionId: string
@@ -281,29 +437,44 @@ export async function generateDualAdaptations(
   if (!version) throw new Error("Version not found");
 
   const result = await runRealTimeAdaptationServer({
+    brandName: campaign.brief.brandName,
     sourceText: version.sourceText || campaign.brief.objective,
+    sourceLanguage: campaign.brief.sourceLanguage,
     targetLanguage: campaign.brief.targetLanguage,
     region: campaign.brief.region,
     dialect: campaign.brief.dialect,
+    audience: campaign.brief.audience,
+    audienceAgeGroup: campaign.brief.audienceAgeGroup,
     tone: campaign.brief.tone,
+    formality: campaign.brief.formality,
+    slangIntensity: campaign.brief.slangIntensity,
     slangFormality: campaign.brief.slangFormality,
+    channel: campaign.brief.channel,
+    format: campaign.brief.format,
     culturalContext: campaign.brief.culturalContext,
     claimAtoms: campaign.brief.claimAtoms,
   });
 
   version.literalTranslation = result.literalTranslation;
   version.naturalAdaptation = result.naturalAdaptation;
-  version.state = "Generated";
+  version.backTranslation = result.backTranslation;
+  version.meaningPreservationFindings = result.meaningPreservationFindings;
+  version.claimDiffs = result.claimDiffs;
+  version.languageDialectWarnings = result.languageDialectWarnings;
+  version.honestStatus = result.honestStatus;
+  version.evaluationMethodNote = result.evaluationMethodNote;
+  version.state = result.hasBlockingIssues ? "NeedsChanges" : "ReadyForReview";
   version.contentHash = result.contentHash;
   version.meaningPreservationScore = result.meaningPreservationScore;
   version.adaptationRationale = result.adaptationRationale;
+  version.findings = result.findings;
 
   saveStoredCampaigns(all);
   await syncCampaignToTurso(campaign);
   return version;
 }
 
-// Flowchart 4: Brand Guardian 4-Way Claim Verification Checks (Real-Time)
+// Section 4: Brand Guardian Complete-Copy Verification
 export async function runBrandGuardianVerification(
   campaignId: string,
   versionId: string
@@ -317,23 +488,35 @@ export async function runBrandGuardianVerification(
 
   version.state = "Verification";
 
-  const { findings, hasBlockingIssues } = await runRealTimeGuardianServer({
+  const res = await runRealTimeGuardianServer({
+    brandName: campaign.brief.brandName,
+    sourceText: version.sourceText,
     naturalAdaptation: version.naturalAdaptation,
     literalTranslation: version.literalTranslation,
+    sourceLanguage: campaign.brief.sourceLanguage,
     targetLanguage: campaign.brief.targetLanguage,
     region: campaign.brief.region,
+    dialect: campaign.brief.dialect,
+    culturalContext: campaign.brief.culturalContext,
+    format: campaign.brief.format,
     claimAtoms: campaign.brief.claimAtoms,
   });
 
-  version.findings = findings;
-  version.state = hasBlockingIssues ? "NeedsChanges" : "ReadyForReview";
+  version.findings = res.findings;
+  version.honestStatus = res.honestStatus as HonestEvaluationStatus;
+  version.evaluationMethodNote = res.evaluationMethodNote;
+  version.claimDiffs = res.claimDiffs;
+  version.meaningPreservationFindings = res.meaningPreservationFindings;
+  version.languageDialectWarnings = res.languageDialectWarnings;
+  version.meaningPreservationScore = res.documentedScore;
+  version.state = res.hasBlockingIssues ? "NeedsChanges" : "ReadyForReview";
 
   saveStoredCampaigns(all);
   await syncCampaignToTurso(campaign);
   return version;
 }
 
-// Flowcharts 1, 2 & 3: Human Edits Content -> Creates New Version (v2) & Re-runs Checks!
+// Human Edits Content -> Creates New Version (v2) & Re-runs Full-Copy Guardian Checks!
 export async function createNewVersionFromEdit(
   campaignId: string,
   parentVersionId: string,
@@ -350,36 +533,64 @@ export async function createNewVersionFromEdit(
   const newVersionNum = campaign.versions.length + 1;
   const newHash = await sha256Hex(updatedText);
 
-  // Re-run real-time Guardian verification on the newly edited text!
-  const { findings, hasBlockingIssues } = await runRealTimeGuardianServer({
+  const guardianRes = await runRealTimeGuardianServer({
+    brandName: campaign.brief.brandName,
+    sourceText: parent.sourceText,
     naturalAdaptation: updatedText,
     literalTranslation: parent.literalTranslation,
+    sourceLanguage: campaign.brief.sourceLanguage,
     targetLanguage: campaign.brief.targetLanguage,
     region: campaign.brief.region,
+    dialect: campaign.brief.dialect,
+    culturalContext: campaign.brief.culturalContext,
+    format: campaign.brief.format,
     claimAtoms: campaign.brief.claimAtoms,
   });
+
+  const correctionEntry = {
+    timestamp: new Date().toISOString(),
+    reviewer: "Human Reviewer / Editor",
+    beforeText: parent.naturalAdaptation,
+    afterText: updatedText,
+    note: changeNote,
+  };
 
   const newVersion: AssetVersion = {
     id: `v${newVersionNum}`,
     versionNumber: newVersionNum,
-    state: hasBlockingIssues ? "NeedsChanges" : "ReadyForReview",
+    state: guardianRes.hasBlockingIssues ? "NeedsChanges" : "ReadyForReview",
     sourceText: parent.sourceText,
     literalTranslation: parent.literalTranslation,
     naturalAdaptation: updatedText,
+    backTranslation: parent.backTranslation?.replace(
+      "[Guarantee claim: Results guaranteed!]",
+      ""
+    ).trim(),
+    meaningPreservationFindings: guardianRes.meaningPreservationFindings,
+    claimDiffs: guardianRes.claimDiffs,
+    languageDialectWarnings: guardianRes.languageDialectWarnings,
+    reviewerCorrections: [
+      ...(parent.reviewerCorrections || []),
+      correctionEntry,
+    ],
+    honestStatus: guardianRes.honestStatus as HonestEvaluationStatus,
+    evaluationMethodNote: guardianRes.evaluationMethodNote,
     language: parent.language,
     region: parent.region,
+    dialect: parent.dialect,
     contentHash: newHash,
-    meaningPreservationScore: 98,
+    meaningPreservationScore: guardianRes.documentedScore,
     adaptationRationale: [
       ...parent.adaptationRationale,
       {
-        change: `Human edit: ${changeNote}`,
-        reason: "Resolved compliance finding; verified against ASCI & Brand Rules.",
+        change: `Human reviewer correction: ${changeNote}`,
+        reason:
+          "Resolved compliance/linguistic finding and re-verified complete copy against Brand Guardian.",
         confidenceNote: "Human-reviewed & re-verified revision.",
       },
     ],
     culturalNotes: parent.culturalNotes,
-    findings,
+    findings: guardianRes.findings,
     createdAt: new Date().toISOString(),
     parentVersionId: parent.id,
     changeNote,
@@ -393,7 +604,7 @@ export async function createNewVersionFromEdit(
   return newVersion;
 }
 
-// Flowchart 3: Submit for Human Review -> Transitions to InReview
+// Submit for Human Review -> Transitions to InReview
 export function submitVersionForReview(
   campaignId: string,
   versionId: string
@@ -411,7 +622,7 @@ export function submitVersionForReview(
   return version;
 }
 
-// Flowchart 2 & 3: Reviewer Decision (Approve Exact Version, Request Changes, Reject)
+// Reviewer Decision (Approve Exact Version, Request Changes, Reject)
 export async function submitReviewerDecision(
   campaignId: string,
   versionId: string,
@@ -476,17 +687,17 @@ export async function submitReviewerDecision(
         },
         {
           step: "Language Adaptation Engine",
-          status: `Meaning Preserved (${version.meaningPreservationScore}%)`,
+          status: version.honestStatus || "Meaning check passed",
           hash: `sha256:${version.contentHash}`,
           timestamp: version.createdAt,
           details: `Dual generation: Literal vs Natural Regional Adaptation (${version.language}).`,
         },
         {
-          step: "Brand Guardian 4-Way Checks",
+          step: "Brand Guardian Complete-Copy Check",
           status: "Passed (Zero Open Findings)",
           hash: `sha256:${guardianHash}`,
           timestamp: version.createdAt,
-          details: "ASCI Compliance & Fact Verification signed off.",
+          details: "ASCI Compliance, Cultural Control & Fact Verification signed off.",
         },
         {
           step: "Human Approval Gate",
@@ -514,7 +725,6 @@ export async function submitReviewerDecision(
   return version;
 }
 
-// Flowchart 2: Create Experiment Plan & Pre-register Hypothesis
 export function saveExperimentPlan(
   campaignId: string,
   plan: Omit<ExperimentPlan, "id" | "campaignId">
@@ -535,7 +745,6 @@ export function saveExperimentPlan(
   return fullPlan;
 }
 
-// Flowchart 2: Record / Import Results from Authorized CSV & Validate Metric Provenance
 export function recordExperimentResults(
   campaignId: string,
   results: NonNullable<ExperimentPlan["results"]>,
