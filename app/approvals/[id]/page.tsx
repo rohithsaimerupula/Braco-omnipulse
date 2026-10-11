@@ -18,19 +18,24 @@ import {
   FlaskConical,
   ShieldCheck,
   Edit3,
+  Users,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import {
   getCampaignById,
+  hydrateCampaignsFromServer,
   submitReviewerDecision,
   createNewVersionFromEdit,
 } from "@/lib/campaigns/store";
 import { Campaign, AssetVersion } from "@/lib/campaigns/types";
+import { getAuthenticatedUser, updateUserRoleAction } from "@/app/auth/actions";
+import { getWorkspaceSettingsServer } from "@/app/actions/campaignActions";
 
 export default function ReviewCenterPage() {
   const params = useParams();
   const router = useRouter();
-  const campaignId = (params?.id as string) || "south-india-diwali";
+  const campaignId = (params?.id as string) || "greenglow-telugu-launch";
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [currentVersion, setCurrentVersion] = useState<AssetVersion | null>(null);
@@ -39,8 +44,14 @@ export default function ReviewCenterPage() {
   );
   const [showPostApprovalEdit, setShowPostApprovalEdit] = useState(false);
   const [postApprovalText, setPostApprovalText] = useState("");
+  const [activeUser, setActiveUser] = useState<{
+    email: string;
+    name: string;
+    role: string;
+  } | null>(null);
+  const [strictRbac, setStrictRbac] = useState(true);
 
-  useEffect(() => {
+  const loadAll = async () => {
     const loaded = getCampaignById(campaignId);
     if (loaded) {
       setCampaign(loaded);
@@ -50,18 +61,58 @@ export default function ReviewCenterPage() {
       setCurrentVersion(ver);
       setPostApprovalText(ver.naturalAdaptation);
     }
+    const [u, ws] = await Promise.all([
+      getAuthenticatedUser(),
+      getWorkspaceSettingsServer(),
+    ]);
+    if (u) setActiveUser(u);
+    setStrictRbac(ws.strictAuthorReviewerSeparation ?? true);
+  };
+
+  useEffect(() => {
+    loadAll();
+    hydrateCampaignsFromServer().then(() => {
+      const refreshed = getCampaignById(campaignId);
+      if (refreshed) {
+        setCampaign(refreshed);
+        const ver =
+          refreshed.versions.find((v) => v.id === refreshed.currentVersionId) ||
+          refreshed.versions[refreshed.versions.length - 1];
+        setCurrentVersion(ver);
+        setPostApprovalText(ver.naturalAdaptation);
+      }
+    });
   }, [campaignId]);
+
+  const isAuthorRoleBlocked =
+    strictRbac && activeUser?.role === "Author & Strategist";
+
+  const handleQuickRoleSwitch = async (newRole: string) => {
+    if (!activeUser) return;
+    await updateUserRoleAction(activeUser.email, newRole);
+    setActiveUser({ ...activeUser, role: newRole });
+  };
 
   const handleDecision = async (
     decision: "approved" | "rejected" | "changes_requested"
   ) => {
     if (!campaign || !currentVersion) return;
+    if (decision === "approved" && isAuthorRoleBlocked) {
+      return;
+    }
+    const reviewerLabel = activeUser
+      ? `${activeUser.name || activeUser.email}`
+      : "Ananya Rao (Regional Compliance Lead)";
+    const roleLabel =
+      activeUser?.role || "Principal Brand & Legal Approver";
+
     const updatedVer = await submitReviewerDecision(
       campaign.id,
       currentVersion.id,
       decision,
-      "Ananya Rao (Regional Compliance Lead)",
-      reviewerNote
+      reviewerLabel,
+      reviewerNote,
+      roleLabel
     );
     const refreshed = getCampaignById(campaign.id);
     if (refreshed) {
@@ -122,6 +173,9 @@ export default function ReviewCenterPage() {
               <Badge variant={isApproved ? "success" : "demo"}>
                 v{currentVersion.versionNumber} • {currentVersion.state}
               </Badge>
+              {activeUser && (
+                <Badge variant="neutral">RBAC: {activeUser.role}</Badge>
+              )}
             </div>
             <p className="text-xs text-neutral-500">
               {campaign.name} — Cryptographic Version Sign-Off
@@ -129,7 +183,7 @@ export default function ReviewCenterPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {!isApproved ? (
             <>
               <Button
@@ -150,16 +204,28 @@ export default function ReviewCenterPage() {
               <Button
                 variant="primary"
                 size="sm"
+                disabled={isAuthorRoleBlocked}
                 onClick={() => handleDecision("approved")}
                 iconRight={<Check size={14} />}
               >
-                Approve Exact Version (v{currentVersion.versionNumber})
+                {isAuthorRoleBlocked
+                  ? "Approval Blocked (Author Role)"
+                  : `Approve Exact Version (v${currentVersion.versionNumber})`}
               </Button>
             </>
           ) : (
             <>
+              <Link href={`/campaigns/${campaign.id}/creators`}>
+                <Button variant="outline" size="sm" icon={<Users size={14} />}>
+                  Creator Match & Brief
+                </Button>
+              </Link>
               <Link href={`/campaigns/${campaign.id}/experiment`}>
-                <Button variant="outline" size="sm" icon={<FlaskConical size={14} />}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={<FlaskConical size={14} />}
+                >
                   Plan Experiment (A/B)
                 </Button>
               </Link>
@@ -179,7 +245,7 @@ export default function ReviewCenterPage() {
 
       {/* Lifecycle Stepper Banner */}
       <div className="bg-forest text-ivory px-8 py-2.5 text-xs flex items-center justify-between">
-        <div className="flex items-center gap-6 max-w-6xl mx-auto w-full">
+        <div className="flex items-center gap-5 max-w-6xl mx-auto w-full">
           <span className="text-ivory/60">1. Brief Locked ✓</span>
           <span className="text-ivory/30">→</span>
           <span className="text-ivory/60">2. Dual Adaptation ✓</span>
@@ -190,13 +256,71 @@ export default function ReviewCenterPage() {
             4. Human Approval Gate ({currentVersion.state})
           </span>
           <span className="text-ivory/30">→</span>
-          <span className="text-ivory/60">5. Experiment & Passport</span>
+          <Link
+            href={`/campaigns/${campaign.id}/creators`}
+            className="text-ivory/80 hover:text-ivory underline"
+          >
+            5a. Creator Match
+          </Link>
+          <span className="text-ivory/30">→</span>
+          <Link
+            href={`/campaigns/${campaign.id}/experiment`}
+            className="text-ivory/80 hover:text-ivory underline"
+          >
+            5b. Experiment & Passport
+          </Link>
         </div>
       </div>
 
       <main className="max-w-5xl mx-auto mt-8 px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Asset, Version Hash & Delta */}
         <div className="lg:col-span-2 space-y-6">
+          {/* RBAC Governance Bar */}
+          <div className="bg-white rounded-xl border border-forest/15 p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <User size={16} className="text-forest shrink-0" />
+              <div>
+                <p className="text-xs font-semibold text-forest">
+                  Active Governance Role:{" "}
+                  <span className="text-brass">
+                    {activeUser?.role || "Principal Brand & Legal Approver"}
+                  </span>
+                </p>
+                <p className="text-2xs text-neutral-500">
+                  {isAuthorRoleBlocked
+                    ? "Strict RBAC Separation Active: Authors cannot self-approve their own campaign draft. Switch to a Reviewer/Approver role to sign off."
+                    : "Your current role has sign-off authority for Stage 3 Human Approval."}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {isAuthorRoleBlocked ? (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() =>
+                    handleQuickRoleSwitch("Principal Brand & Legal Approver")
+                  }
+                >
+                  Switch to Approver Role
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleQuickRoleSwitch("Author & Strategist")}
+                >
+                  Test Author Block Mode
+                </Button>
+              )}
+              <Link href="/dashboard/settings">
+                <Button size="sm" variant="ghost">
+                  <Settings size={13} /> RBAC Settings
+                </Button>
+              </Link>
+            </div>
+          </div>
+
           {/* State Banner */}
           {isApproved && (
             <div className="bg-green-50 border-2 border-green-500 rounded-xl p-5 flex items-start justify-between gap-4">

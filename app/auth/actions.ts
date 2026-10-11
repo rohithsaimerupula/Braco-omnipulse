@@ -232,13 +232,24 @@ export async function getSession() {
   }
 }
 
+async function ensureRoleTable() {
+  await ensureAuthTables();
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS user_roles (
+      email TEXT PRIMARY KEY,
+      role TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `);
+}
+
 export async function getAuthenticatedUser() {
   const cookieStore = await cookies();
   const sessionEmail = cookieStore.get('session')?.value?.trim().toLowerCase() || null;
   if (!sessionEmail) return null;
 
   try {
-    await ensureAuthTables();
+    await ensureRoleTable();
     const userResult = await turso.execute({
       sql: "SELECT email, name, company FROM users WHERE LOWER(email) = ?",
       args: [sessionEmail]
@@ -249,12 +260,68 @@ export async function getAuthenticatedUser() {
     }
 
     const row = userResult.rows[0];
+    const roleResult = await turso.execute({
+      sql: "SELECT role FROM user_roles WHERE LOWER(email) = ?",
+      args: [sessionEmail]
+    });
+
+    const role =
+      roleResult.rows.length > 0
+        ? (roleResult.rows[0].role as string)
+        : "Principal Brand & Legal Approver";
+
     return {
       email: row.email as string,
       name: (row.name as string) || "",
       company: (row.company as string) || "",
+      role,
     };
   } catch {
     return null;
   }
 }
+
+export async function updateUserRoleAction(email: string, role: string) {
+  const normalized = (email || "").trim().toLowerCase();
+  if (!normalized || !role) return { error: "Email and role are required" };
+
+  try {
+    await ensureRoleTable();
+    await turso.execute({
+      sql: `INSERT INTO user_roles (email, role, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(email) DO UPDATE SET role = excluded.role, updated_at = excluded.updated_at`,
+      args: [normalized, role, Date.now()],
+    });
+    return { success: true, role };
+  } catch (err: any) {
+    console.error("Failed to update user role:", err);
+    return { error: "Failed to update role" };
+  }
+}
+
+export async function getAllWorkspaceUsersAction() {
+  try {
+    await ensureRoleTable();
+    const usersRes = await turso.execute("SELECT email, name, company FROM users ORDER BY email ASC");
+    const rolesRes = await turso.execute("SELECT email, role FROM user_roles");
+    const roleMap = new Map<string, string>();
+    for (const r of rolesRes.rows) {
+      roleMap.set(String(r.email).toLowerCase(), String(r.role));
+    }
+
+    return usersRes.rows.map((u) => {
+      const em = String(u.email).toLowerCase();
+      return {
+        email: String(u.email),
+        name: String(u.name || ""),
+        company: String(u.company || ""),
+        role: roleMap.get(em) || "Principal Brand & Legal Approver",
+      };
+    });
+  } catch (err) {
+    console.error("Failed to fetch workspace users:", err);
+    return [];
+  }
+}
+

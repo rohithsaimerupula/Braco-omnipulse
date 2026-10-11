@@ -196,13 +196,33 @@ export interface CampaignPassport {
   provenanceStatus: "immutable_verified" | "tamper_detected";
 }
 
+export interface CreatorProfile {
+  id: string;
+  name: string;
+  handle: string;
+  platform: string;
+  followers: string;
+  language: string;
+  region: string;
+  dialect: string;
+  niche: string;
+  engagementRate: string;
+  brandSafetyScore: number;
+  pastComplianceRate: string;
+  sampleNote: string;
+}
+
 export interface Campaign {
   id: string;
   name: string;
   createdAt: string;
+  createdByEmail?: string;
   brief: CampaignBrief;
   versions: AssetVersion[];
   currentVersionId: string;
+  shortlistedCreatorIds?: string[];
+  customCreators?: CreatorProfile[];
   experimentPlan?: ExperimentPlan;
   passport?: CampaignPassport;
 }
+

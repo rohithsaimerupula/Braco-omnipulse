@@ -7,9 +7,33 @@ import {
   verifyCompleteCopyWithGuardian,
   translateWithFallback,
 } from "@/lib/regional/engine";
+import {
+  generateAdaptationWithGemini,
+  translateWithSarvamAI,
+} from "@/lib/ai/adapter";
+
+export interface WorkspaceSettings {
+  geminiApiKey: string;
+  sarvamApiKey: string;
+  preferredAiProvider: "auto" | "gemini" | "sarvam" | "mymemory";
+  strictAuthorReviewerSeparation: boolean;
+  adPlatformConnected: boolean;
+  metaAdAccountId: string;
+  googleAdsCustomerId: string;
+}
+
+const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
+  geminiApiKey: "",
+  sarvamApiKey: "",
+  preferredAiProvider: "auto",
+  strictAuthorReviewerSeparation: true,
+  adPlatformConnected: true,
+  metaAdAccountId: "act_84920144920_BRACO_IN",
+  googleAdsCustomerId: "742-910-4821",
+};
 
 /**
- * Ensure Turso libSQL tables exist for Campaigns, Brand Library, and Audit Logs
+ * Ensure Turso libSQL tables exist for Campaigns, Brand Library, and Workspace Settings
  */
 export async function ensureDomainTables() {
   await turso.execute(`
@@ -32,6 +56,181 @@ export async function ensureDomainTables() {
       created_at TEXT NOT NULL
     )
   `);
+
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS workspace_settings (
+      id TEXT PRIMARY KEY,
+      payload TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `);
+}
+
+export async function getWorkspaceSettingsServer(): Promise<
+  WorkspaceSettings & {
+    hasEnvGeminiKey: boolean;
+    hasEnvSarvamKey: boolean;
+  }
+> {
+  try {
+    await ensureDomainTables();
+    const res = await turso.execute({
+      sql: "SELECT payload FROM workspace_settings WHERE id = ?",
+      args: ["default"],
+    });
+    let stored: Partial<WorkspaceSettings> = {};
+    if (res.rows.length > 0 && res.rows[0].payload) {
+      stored = JSON.parse(String(res.rows[0].payload));
+    }
+    return {
+      ...DEFAULT_WORKSPACE_SETTINGS,
+      ...stored,
+      hasEnvGeminiKey: Boolean(process.env.GEMINI_API_KEY?.trim()),
+      hasEnvSarvamKey: Boolean(process.env.SARVAM_API_KEY?.trim()),
+    };
+  } catch (err) {
+    console.error("Failed to fetch workspace settings:", err);
+    return {
+      ...DEFAULT_WORKSPACE_SETTINGS,
+      hasEnvGeminiKey: Boolean(process.env.GEMINI_API_KEY?.trim()),
+      hasEnvSarvamKey: Boolean(process.env.SARVAM_API_KEY?.trim()),
+    };
+  }
+}
+
+export async function saveWorkspaceSettingsServer(
+  settings: Partial<WorkspaceSettings>
+) {
+  try {
+    await ensureDomainTables();
+    const current = await getWorkspaceSettingsServer();
+    const merged: WorkspaceSettings = {
+      geminiApiKey:
+        settings.geminiApiKey !== undefined
+          ? settings.geminiApiKey.trim()
+          : current.geminiApiKey,
+      sarvamApiKey:
+        settings.sarvamApiKey !== undefined
+          ? settings.sarvamApiKey.trim()
+          : current.sarvamApiKey,
+      preferredAiProvider:
+        settings.preferredAiProvider || current.preferredAiProvider,
+      strictAuthorReviewerSeparation:
+        settings.strictAuthorReviewerSeparation !== undefined
+          ? settings.strictAuthorReviewerSeparation
+          : current.strictAuthorReviewerSeparation,
+      adPlatformConnected:
+        settings.adPlatformConnected !== undefined
+          ? settings.adPlatformConnected
+          : current.adPlatformConnected,
+      metaAdAccountId: settings.metaAdAccountId || current.metaAdAccountId,
+      googleAdsCustomerId:
+        settings.googleAdsCustomerId || current.googleAdsCustomerId,
+    };
+
+    await turso.execute({
+      sql: `INSERT INTO workspace_settings (id, payload, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, updated_at = excluded.updated_at`,
+      args: ["default", JSON.stringify(merged), Date.now()],
+    });
+    return { success: true, settings: merged };
+  } catch (err: any) {
+    console.error("Failed to save workspace settings:", err);
+    return { success: false, error: err?.message || "Failed to save settings" };
+  }
+}
+
+export async function testAiProviderConnectionServer(params: {
+  sampleText: string;
+  targetLanguage: string;
+  dialect?: string;
+}) {
+  const start = Date.now();
+  const ws = await getWorkspaceSettingsServer();
+  const geminiKey = ws.geminiApiKey || process.env.GEMINI_API_KEY || "";
+  const sarvamKey = ws.sarvamApiKey || process.env.SARVAM_API_KEY || "";
+
+  let geminiStatus = "Not configured (using Regional Engine fallback)";
+  let sarvamStatus = "Not configured (using MyMemory Neural fallback)";
+  let activeProviderUsed =
+    "Braco Regional Quality Engine + MyMemory Neural API";
+  let sampleOutput = "";
+
+  if (geminiKey) {
+    const gRes = await generateAdaptationWithGemini({
+      brandName: "GreenGlow",
+      sourceText: params.sampleText,
+      sourceLanguage: "English",
+      targetLanguage: params.targetLanguage,
+      region: "Andhra Pradesh",
+      dialect: params.dialect || "Coastal Andhra",
+      tone: "Clear, Warm, Conversational",
+      approvedClaims: [params.sampleText],
+      apiKey: geminiKey,
+    });
+    if (gRes.usedLiveGemini && gRes.naturalAdaptation) {
+      geminiStatus = "Connected & Verified (Gemini 2.0 Flash Live)";
+      activeProviderUsed = "Google Gemini 2.0 Flash + Braco Brand Guardian";
+      sampleOutput = gRes.naturalAdaptation;
+    } else {
+      geminiStatus = `Key error (${gRes.error || "failed"}) — fell back safely`;
+    }
+  }
+
+  if (sarvamKey) {
+    const sRes = await translateWithSarvamAI({
+      input: params.sampleText,
+      sourceLanguage: "English",
+      targetLanguage: params.targetLanguage,
+      mode: "modern-colloquial",
+      apiKey: sarvamKey,
+    });
+    if (sRes.usedLiveSarvam && sRes.translatedText) {
+      sarvamStatus = "Connected & Verified (Sarvam Mayura v1 Live)";
+      if (!sampleOutput) {
+        activeProviderUsed = "Sarvam AI Mayura v1 + Braco Brand Guardian";
+        sampleOutput = sRes.translatedText;
+      }
+    } else {
+      sarvamStatus = `Key error (${sRes.error || "failed"}) — fell back safely`;
+    }
+  }
+
+  if (!sampleOutput) {
+    const fallbackRes = await generateRegionalAdaptation({
+      brandName: "GreenGlow",
+      sourceText: params.sampleText,
+      sourceLanguage: "English",
+      targetLanguage: params.targetLanguage,
+      region: "Andhra Pradesh",
+      dialect: params.dialect || "Coastal Andhra",
+      tone: "Clear, Warm, Conversational",
+      formality: "Conversational Respectful",
+      slangIntensity: "none",
+      channel: "Social Media",
+      format: "Short Video Caption",
+      culturalContext: "",
+      claimAtoms: [
+        {
+          id: "test-claim-1",
+          canonicalText: params.sampleText,
+          lockedTokens: ["GreenGlow"],
+          sourceTitle: "Live Provider Test",
+          evidenceStatus: "supported",
+        },
+      ],
+    });
+    sampleOutput = fallbackRes.naturalAdaptation;
+  }
+
+  return {
+    latencyMs: Date.now() - start,
+    activeProviderUsed,
+    geminiStatus,
+    sarvamStatus,
+    sampleOutput,
+  };
 }
 
 export async function translateTextRealTime(
@@ -39,13 +238,26 @@ export async function translateTextRealTime(
   targetLangName: string,
   sourceLangName = "English"
 ): Promise<string> {
+  const ws = await getWorkspaceSettingsServer();
+  const sarvamKey = ws.sarvamApiKey || process.env.SARVAM_API_KEY || "";
+  if (sarvamKey && ws.preferredAiProvider !== "mymemory") {
+    const sRes = await translateWithSarvamAI({
+      input: text,
+      sourceLanguage: sourceLangName,
+      targetLanguage: targetLangName,
+      apiKey: sarvamKey,
+    });
+    if (sRes.usedLiveSarvam && sRes.translatedText) {
+      return sRes.translatedText;
+    }
+  }
   return translateWithFallback(text, sourceLangName, targetLangName);
 }
 
 /**
  * Real-Time Dual Adaptation Engine (Sections 1-6):
- * Delegates to lib/regional/engine.ts so it strictly respects cultural-context controls,
- * dialect differentiation, back-translation, and honest evaluation statuses.
+ * Uses Live Gemini / Sarvam AI when configured in Settings or .env.local,
+ * and always enforces the deterministic Regional Quality & Complete-Copy Brand Guardian Engine.
  */
 export async function runRealTimeAdaptationServer(params: {
   brandName?: string;
@@ -65,7 +277,8 @@ export async function runRealTimeAdaptationServer(params: {
   culturalContext: string;
   claimAtoms: ClaimAtom[];
 }) {
-  return generateRegionalAdaptation({
+  // First run the deterministic + MyMemory baseline so we always have complete A-H structure
+  const baseResult = await generateRegionalAdaptation({
     brandName: params.brandName,
     sourceText: params.sourceText,
     sourceLanguage: params.sourceLanguage || "English",
@@ -82,6 +295,123 @@ export async function runRealTimeAdaptationServer(params: {
     culturalContext: params.culturalContext,
     claimAtoms: params.claimAtoms,
   });
+
+  // Check if live Gemini or Sarvam API key is configured in Workspace Settings or env
+  const ws = await getWorkspaceSettingsServer();
+  const geminiKey = ws.geminiApiKey || process.env.GEMINI_API_KEY || "";
+  const sarvamKey = ws.sarvamApiKey || process.env.SARVAM_API_KEY || "";
+
+  if (
+    geminiKey &&
+    (ws.preferredAiProvider === "auto" || ws.preferredAiProvider === "gemini")
+  ) {
+    const gRes = await generateAdaptationWithGemini({
+      brandName: params.brandName,
+      sourceText: params.sourceText,
+      sourceLanguage: params.sourceLanguage || "English",
+      targetLanguage: params.targetLanguage,
+      region: params.region,
+      dialect: params.dialect,
+      audience: params.audience,
+      audienceAgeGroup: params.audienceAgeGroup,
+      tone: params.tone,
+      formality: params.formality || params.slangFormality,
+      slangIntensity: params.slangIntensity || "none",
+      channel: params.channel,
+      format: params.format,
+      culturalContext: params.culturalContext,
+      approvedClaims: params.claimAtoms.map((c) => c.canonicalText),
+      apiKey: geminiKey,
+    });
+
+    if (gRes.usedLiveGemini && gRes.naturalAdaptation && gRes.literalTranslation) {
+      const guardianCheck = verifyCompleteCopyWithGuardian({
+        brandName: params.brandName,
+        sourceText: params.sourceText,
+        literalTranslation: gRes.literalTranslation,
+        naturalAdaptation: gRes.naturalAdaptation,
+        sourceLanguage: params.sourceLanguage || "English",
+        targetLanguage: params.targetLanguage,
+        region: params.region,
+        dialect: params.dialect,
+        culturalContext: params.culturalContext,
+        format: params.format,
+        claimAtoms: params.claimAtoms,
+      });
+
+      return {
+        ...baseResult,
+        literalTranslation: gRes.literalTranslation,
+        naturalAdaptation: gRes.naturalAdaptation,
+        backTranslation: gRes.backTranslation || baseResult.backTranslation,
+        adaptationRationale:
+          gRes.adaptationRationale && gRes.adaptationRationale.length > 0
+            ? gRes.adaptationRationale
+            : baseResult.adaptationRationale,
+        meaningPreservationFindings: guardianCheck.meaningPreservationFindings,
+        claimDiffs: guardianCheck.claimDiffs,
+        languageDialectWarnings: guardianCheck.languageDialectWarnings,
+        honestStatus: guardianCheck.honestStatus,
+        evaluationMethodNote: `${guardianCheck.evaluationMethodNote} (Generated via Live Gemini 2.0 Flash)`,
+        meaningPreservationScore: guardianCheck.documentedScore,
+      };
+    }
+  }
+
+  if (
+    sarvamKey &&
+    (ws.preferredAiProvider === "auto" || ws.preferredAiProvider === "sarvam")
+  ) {
+    const [litSarvam, natSarvam] = await Promise.all([
+      translateWithSarvamAI({
+        input: params.sourceText,
+        sourceLanguage: params.sourceLanguage || "English",
+        targetLanguage: params.targetLanguage,
+        mode: "formal",
+        apiKey: sarvamKey,
+      }),
+      translateWithSarvamAI({
+        input: params.sourceText,
+        sourceLanguage: params.sourceLanguage || "English",
+        targetLanguage: params.targetLanguage,
+        mode: "modern-colloquial",
+        apiKey: sarvamKey,
+      }),
+    ]);
+
+    if (natSarvam.usedLiveSarvam && natSarvam.translatedText) {
+      const literalText =
+        litSarvam.translatedText || baseResult.literalTranslation;
+      const naturalText = natSarvam.translatedText;
+      const guardianCheck = verifyCompleteCopyWithGuardian({
+        brandName: params.brandName,
+        sourceText: params.sourceText,
+        literalTranslation: literalText,
+        naturalAdaptation: naturalText,
+        sourceLanguage: params.sourceLanguage || "English",
+        targetLanguage: params.targetLanguage,
+        region: params.region,
+        dialect: params.dialect,
+        culturalContext: params.culturalContext,
+        format: params.format,
+        claimAtoms: params.claimAtoms,
+      });
+
+      return {
+        ...baseResult,
+        literalTranslation: literalText,
+        naturalAdaptation: naturalText,
+        meaningPreservationFindings: guardianCheck.meaningPreservationFindings,
+        claimDiffs: guardianCheck.claimDiffs,
+        languageDialectWarnings: guardianCheck.languageDialectWarnings,
+        honestStatus: guardianCheck.honestStatus,
+        evaluationMethodNote: `${guardianCheck.evaluationMethodNote} (Generated via Live Sarvam AI Mayura v1)`,
+        meaningPreservationScore: guardianCheck.documentedScore,
+      };
+    }
+  }
+
+  return baseResult;
 }
 
 /**

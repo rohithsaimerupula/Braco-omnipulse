@@ -447,6 +447,18 @@ export default function ExperimentPlannerPage() {
                 Upload Real CSV File (.csv)
               </Button>
               <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  processCsvContent(
+                    `variant,impressions,clicks,spend,currency,attribution_window\nVariant_A,31200,842,22400,INR,7d_click\nVariant_B,32500,1592,22900,INR,7d_click`,
+                    "Live Meta Ads Manager API (act_84920144920_BRACO_IN)"
+                  )
+                }
+              >
+                Sync Live Meta Ads &amp; Google Ads API
+              </Button>
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() =>

@@ -9,6 +9,8 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  Users,
+  FileCheck2,
 } from "lucide-react";
 import { getAuthenticatedUser, signOut } from "@/app/auth/actions";
 
@@ -50,23 +52,33 @@ export default async function DashboardLayout({
           },
           {
             icon: <FileText size={15} />,
-            label: "Campaigns",
+            label: "New Campaign",
             href: "/campaigns/new",
           },
           {
             icon: <CheckSquare size={15} />,
-            label: "Approvals",
-            href: "/approvals/south-india-diwali",
+            label: "Approvals & RBAC",
+            href: "/approvals/greenglow-telugu-launch",
+          },
+          {
+            icon: <Users size={15} />,
+            label: "Creator Match",
+            href: "/campaigns/greenglow-telugu-launch/creators",
           },
           {
             icon: <BarChart3 size={15} />,
-            label: "Analytics",
-            href: "/campaigns/south-india-diwali/experiment",
+            label: "A/B & Analytics",
+            href: "/campaigns/greenglow-telugu-launch/experiment",
+          },
+          {
+            icon: <FileCheck2 size={15} />,
+            label: "Decision Passport",
+            href: "/campaigns/greenglow-telugu-launch/passport",
           },
           {
             icon: <Settings size={15} />,
-            label: "Decision Passport",
-            href: "/campaigns/south-india-diwali/passport",
+            label: "Settings & AI Keys",
+            href: "/dashboard/settings",
           },
         ].map((item) => (
           <Link
@@ -92,6 +104,11 @@ export default async function DashboardLayout({
             <p className="text-2xs text-ivory/70 font-mono truncate">
               {user.email}
             </p>
+            {user.role && (
+              <p className="text-2xs text-brass font-medium truncate mt-1">
+                {user.role}
+              </p>
+            )}
           </div>
 
           <form action={signOut}>

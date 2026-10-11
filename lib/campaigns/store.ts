@@ -7,6 +7,7 @@ import {
   ApprovalRecord,
   ExperimentPlan,
   HonestEvaluationStatus,
+  CreatorProfile,
 } from "./types";
 import { sha256Hex } from "@/lib/utils/hash";
 import {
@@ -333,6 +334,9 @@ export async function hydrateCampaignsFromTurso(): Promise<Campaign[]> {
   }
 }
 
+export const hydrateCampaignsFromServer = hydrateCampaignsFromTurso;
+
+
 // Find single campaign
 export function getCampaignById(id: string): Campaign | undefined {
   const all = getStoredCampaigns();
@@ -341,7 +345,8 @@ export function getCampaignById(id: string): Campaign | undefined {
 
 // Create new campaign according to Sections 1-6 (Real-time Regional Engine + Turso Sync)
 export async function createNewCampaign(
-  briefData: Omit<CampaignBrief, "id">
+  briefData: Omit<CampaignBrief, "id">,
+  createdByEmail?: string
 ): Promise<Campaign> {
   const all = getStoredCampaigns();
   const id =
@@ -411,9 +416,12 @@ export async function createNewCampaign(
     id,
     name: brief.name,
     createdAt: new Date().toISOString(),
+    createdByEmail,
     brief,
     versions: [v1],
     currentVersionId: "v1",
+    shortlistedCreatorIds: [],
+    customCreators: [],
   };
 
   const filtered = all.filter((c) => c.id !== id);
@@ -628,7 +636,8 @@ export async function submitReviewerDecision(
   versionId: string,
   decision: "approved" | "rejected" | "changes_requested",
   reviewerName: string,
-  reviewerNote: string
+  reviewerNote: string,
+  reviewerRole = "Principal Brand & Legal Approver"
 ): Promise<AssetVersion> {
   const all = getStoredCampaigns();
   const campaign = all.find((c) => c.id === campaignId);
@@ -641,7 +650,7 @@ export async function submitReviewerDecision(
     id: `appr-${Date.now()}`,
     decision,
     reviewerName,
-    reviewerRole: "Principal Brand Guardian & Regional Reviewer",
+    reviewerRole,
     reviewerNote,
     versionHash: version.contentHash,
     timestamp: new Date().toISOString(),
@@ -667,7 +676,7 @@ export async function submitReviewerDecision(
       approvedLanguage: version.language,
       approvedContent: version.naturalAdaptation,
       approvedAt: record.timestamp,
-      approverName: reviewerName,
+      approverName: `${reviewerName} (${reviewerRole})`,
       evidenceChain: [
         {
           step: "Campaign Brief Locked",
@@ -704,7 +713,7 @@ export async function submitReviewerDecision(
           status: "Approved Exact Version",
           hash: `sha256:${version.contentHash}`,
           timestamp: record.timestamp,
-          details: `Signed by ${reviewerName}. Tamper-evident hash frozen in Turso libSQL.`,
+          details: `Signed by ${reviewerName} [${reviewerRole}]. Tamper-evident hash frozen in Turso libSQL.`,
         },
       ],
       claimsVerified: campaign.brief.claimAtoms.map((ca) => ({
@@ -760,7 +769,7 @@ export function recordExperimentResults(
 
   if (campaign.passport) {
     campaign.passport.evidenceChain.push({
-      step: "Metric Provenance Validation (Authorized CSV)",
+      step: "Metric Provenance Validation (Authorized CSV / Ad API)",
       status: "Authorized Source Verified",
       hash: `sha256:${
         csvHash ||
@@ -775,3 +784,46 @@ export function recordExperimentResults(
   syncCampaignToTurso(campaign).catch(console.error);
   return campaign.experimentPlan;
 }
+
+// Creator Match: Toggle Creator Shortlist & Persist to Turso libSQL
+export async function toggleShortlistCreator(
+  campaignId: string,
+  creatorId: string
+): Promise<string[]> {
+  const all = getStoredCampaigns();
+  const campaign = all.find((c) => c.id === campaignId);
+  if (!campaign) throw new Error("Campaign not found");
+
+  const current = campaign.shortlistedCreatorIds || [];
+  if (current.includes(creatorId)) {
+    campaign.shortlistedCreatorIds = current.filter((id) => id !== creatorId);
+  } else {
+    campaign.shortlistedCreatorIds = [...current, creatorId];
+  }
+
+  saveStoredCampaigns(all);
+  await syncCampaignToTurso(campaign);
+  return campaign.shortlistedCreatorIds;
+}
+
+// Creator Match: Add Custom Regional Creator & Persist to Turso libSQL
+export async function addCustomCreatorToCampaign(
+  campaignId: string,
+  creator: CreatorProfile
+): Promise<CreatorProfile[]> {
+  const all = getStoredCampaigns();
+  const campaign = all.find((c) => c.id === campaignId);
+  if (!campaign) throw new Error("Campaign not found");
+
+  const existing = campaign.customCreators || [];
+  campaign.customCreators = [creator, ...existing];
+  const shortlisted = campaign.shortlistedCreatorIds || [];
+  if (!shortlisted.includes(creator.id)) {
+    campaign.shortlistedCreatorIds = [creator.id, ...shortlisted];
+  }
+
+  saveStoredCampaigns(all);
+  await syncCampaignToTurso(campaign);
+  return campaign.customCreators;
+}
+
